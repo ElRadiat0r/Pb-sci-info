@@ -9,40 +9,66 @@ namespace KarateGraphe
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static int[,] creationMatrice(string chemin)
         {
-            string chemin = "soc-karate.mtx";
-            StreamReader reader = new(chemin);
+            int[,] matriceUsers = null;
 
+            StreamReader lecteur = new(chemin);
             string ligne = "";
-            ligne =reader.ReadLine();
+            ligne = lecteur.ReadLine();
+
             string[] header = ligne.Split(" ");
 
             if (header[2] == "coordinate")
             {
-                while(reader.ReadLine() != null)
+                Console.WriteLine("format = coordinate");
+                while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    ligne = reader.ReadLine();
-                    if (ligne[0] != '%')
+                    if (ligne!=null && ligne[0] != '%' && ligne.Length > 0)
                     {
                         string[] tabline = ligne.Split(' ');
-                        int[,] matriceUsers = null;
-
                         if (tabline.Length == 3)
                         {
+                            Console.WriteLine("Size Line = " + ligne);
                             matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])];
-                        }
-                        else
-                        {
-                            matriceUsers[tabline[0], tabline[1]] == 1;
                         }
                     }
                 }
             }
-            Console.WriteLine(ligne);
+            return matriceUsers;
+        }
 
-            string matriceKarate = reader.ReadToEnd();
+        static void Main(string[] args)
+        {
+            string chemin = "soc-karate.mtx";
+            StreamReader fichier = new(chemin);
+            string ligne = fichier.ReadLine();
+            int[,] matriceUsers = creationMatrice(chemin);
+            if (matriceUsers != null)
+            {
+                Console.WriteLine("taille matrice : " + matriceUsers.GetLength(0));
+                while ((ligne = fichier.ReadLine()) != null)
+                {
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)
+                    {
 
+                        string[] tabline = ligne.Split(' ');
+                        
+                        if (tabline.Length == 2)
+                        {
+                            matriceUsers[Convert.ToInt32(tabline[0])-1,Convert.ToInt32(tabline[1])-1] = 1;
+                        }
+                    }
+                }
+                for (int i = 0; i < matriceUsers.GetLength(0); i++)
+                {
+                    for (int ii = 0; ii < matriceUsers.GetLength(1); ii++)
+                    {
+                        Console.Write(matriceUsers[i,ii] + ", ");
+                    }
+                    Console.WriteLine();
+                }
+            }
         }
     }
 }
