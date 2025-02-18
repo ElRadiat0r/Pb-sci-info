@@ -1,29 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace KaratéGraphe
 {
     public class Graphe
     {
         public List<Noeud> AllNodes { get; private set; }
-        public Graphe(int[,] TheMatrix)
+        public List<Lien> AllLinks { get; private set; }
+        public Graphe(int[,] TheMatrix, bool Oriented = false)
         {
             AllNodes = new List<Noeud>();
+            AllLinks = new List<Lien>();
             for (int i = 0; i < TheMatrix.GetLength(0); i++)
             {
-                Noeud Node = new Noeud(i);
-                Node.DegreesDefinition(TheMatrix);
-                AllNodes.Add(Node);
+                Noeud node = new Noeud(i);
+                node.DegreesDefinition(TheMatrix);
+                AllNodes.Add(node);
             }
+            for (int i = 0; i < TheMatrix.GetLength(0); i++)
+            {
+                for (int j = 0; j < TheMatrix.GetLength(0); j++)
+                {
+                    if (TheMatrix[i, j] != 0)
+                    {
+                        if (Oriented || i >= j)
+                        {
+                            AllLinks.Add(new Lien(i, j, TheMatrix[i, j], Oriented));
+                        }
+                    }
+                }
+            }
+
         }
         public void AfficherGraphe()
         {
-            foreach (var Node in AllNodes)
+            foreach (var node in AllNodes)
             {
-                Console.WriteLine(Node.ToString());
+                Console.WriteLine(node);
+            }
+            foreach (var link in AllLinks)
+            {
+                Console.WriteLine(link);
             }
         }
     }

@@ -45,7 +45,7 @@ namespace KaratéGraphe
         }
         public override string ToString()
         {
-            return "Numéro du noeud : " + NodeID + "\nDegré entrant : " + EnteringDegree + "\nDegré sortant : " + OutgoingDegree;
+            return "Numéro du noeud : " + NodeID + "\nDegré entrant : " + EnteringDegree + "\nDegré sortant : " + OutgoingDegree + "\n";
         }
     }
 }
