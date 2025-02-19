@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace KaratéGraphe
@@ -21,12 +21,9 @@ namespace KaratéGraphe
             {
                 for (int j = 0; j < TheMatrix.GetLength(0); j++)
                 {
-                    if (TheMatrix[i, j] != 0)
+                    if (TheMatrix[i, j] != 0 && Oriented || i >= j)
                     {
-                        if (Oriented || i >= j)
-                        {
-                            AllLinks.Add(new Lien(i, j, TheMatrix[i, j], Oriented));
-                        }
+                        AllLinks.Add(new Lien(i, j, TheMatrix[i, j], Oriented));
                     }
                 }
             }
