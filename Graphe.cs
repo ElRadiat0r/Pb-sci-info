@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace KaratéGraphe
+namespace KarateGraphe
 {
     public class Graphe
     {
