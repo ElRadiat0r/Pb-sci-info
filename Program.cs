@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Graphviz4Net.Graphs;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
+using System.Reflection.PortableExecutable;
 
 namespace KarateGraphe
 {
@@ -393,7 +394,9 @@ namespace KarateGraphe
                     Console.WriteLine("=== Menu Principal ===");
                     Console.WriteLine("1. Client");
                     Console.WriteLine("2. Cuisinier");
-                    Console.WriteLine("3. Statistiques");
+                    Console.WriteLine("3. Commandes");
+                    Console.WriteLine("4. Statistiques");
+                    Console.WriteLine("5. Autres");
                     Console.WriteLine("0. Quitter");
                     Console.Write("Choisissez une option : ");
                     string mainChoice = Console.ReadLine();
@@ -404,12 +407,20 @@ namespace KarateGraphe
                             ClientMenu(Connection);
                             break;
                         case "2":
-                            Console.WriteLine("Menu Cuisinier à implémenter...");
+                            CuisinierMenu(Connection);
+                            break;
+                        case "3":
+                            Console.WriteLine("Module Commandes à implémenter...");
                             Console.WriteLine("Appuyez sur une touche pour continuer...");
                             Console.ReadKey();
                             break;
-                        case "3":
+                        case "4":
                             Console.WriteLine("Module Statistiques à implémenter...");
+                            Console.WriteLine("Appuyez sur une touche pour continuer...");
+                            Console.ReadKey();
+                            break;
+                        case "5":
+                            Console.WriteLine("Module Autres à implémenter...");
                             Console.WriteLine("Appuyez sur une touche pour continuer...");
                             Console.ReadKey();
                             break;
@@ -661,6 +672,138 @@ namespace KarateGraphe
                     Console.WriteLine($"ID: {id}, Nom: {nom}, Prénom: {prenom}, Nombre de commandes: {NbOrders}, Total: {TotalOrders}EUR");
                 }
                 reader.Close();
+            }
+            static void CuisinierMenu(MySqlConnection Connection)
+            {
+                bool back = false;
+                while (!back)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Cuisinier ===");
+                    Console.WriteLine("1. Ajouter un cuisinier");
+                    Console.WriteLine("2. Modifier un cuisinier");
+                    Console.WriteLine("3. Supprimer un cuisinier");
+                    Console.WriteLine("4. Afficher les informations cuisinier");
+                    Console.WriteLine("0. Retour au menu principal");
+                    Console.Write("Choisissez une option : ");
+                    string choice = Console.ReadLine();
+                    switch (choice)
+                    {
+                        case "1":
+                            AddUser(Connection);
+                            break;
+                        case "2":
+                            EditUser(Connection);
+                            break;
+                        case "3":
+                            DeleteUser(Connection);
+                            break;
+                        case "4":
+                            InformationsCuisinier(Connection);
+                            break;
+                        case "0":
+                            back = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide.");
+                            break;
+                    }
+                    if (!back)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            static void InformationsCuisinier(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.Write("Entrez l'ID d'un cuisinier pour obtenir ses informations : ");
+                if (int.TryParse(Console.ReadLine(), out int id_cuisinier))
+                {
+                    try
+                    {
+                        string InspectCook = "SELECT DISTINCT u.id_utilisateur, u.prenom, u.nom, u.email FROM Utilisateur u JOIN Commande c ON u.id_utilisateur = c.id_client JOIN LigneCommande lc ON c.id_commande = lc.id_commande JOIN Plat p ON lc.id_plat = p.id_plat WHERE p.id_cuisinier = @id_cuisinier;";
+                        MySqlCommand CommandInspectCook = new MySqlCommand(InspectCook, Connection);
+                        CommandInspectCook.Parameters.AddWithValue("@id_cuisinier", id_cuisinier);
+                        MySqlDataReader reader = CommandInspectCook.ExecuteReader();
+                        bool HasReasults = false;
+                        Console.WriteLine("=== Liste des Clients servi par ce Cuisinier ===");
+                        Console.WriteLine();
+                        while (reader.Read())
+                        {
+                            HasReasults = true;
+                            Console.WriteLine($"ID: {reader["id_utilisateur"]}, Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Email: {reader["email"]}");
+                        }
+                        reader.Close();
+                        if (!HasReasults)
+                        {
+                            Console.WriteLine("Aucun client servi par ce cuisinier.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erreur : " + ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ID invalide.");
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+                try
+                {
+                    string Instruction = "SELECT nom_plat, date_fabrication FROM Plat WHERE id_cuisinier = @id_cuisinier ORDER BY date_fabrication DESC;";
+                    MySqlCommand ExecuteInstruction = new MySqlCommand(Instruction, Connection);
+                    ExecuteInstruction.Parameters.AddWithValue("@id_cuisinier", id_cuisinier);
+                    MySqlDataReader reader = ExecuteInstruction.ExecuteReader();
+                    bool HasReasults = false;
+                    Console.WriteLine("=== Liste des Plats préparés par ce Cuisinier ===");
+                    Console.WriteLine();
+                    while (reader.Read())
+                    {
+                        HasReasults = true;
+                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Date de préparation: {reader["date_fabrication"]}");
+                    }
+                    reader.Close();
+                    if (!HasReasults)
+                    {
+                        Console.WriteLine("Aucun plat préparé par ce cuisinier.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+                try
+                {
+                    string Instruction = "SELECT nom_plat, date_fabrication FROM Plat WHERE id_cuisinier = @id_cuisinier ORDER BY date_fabrication DESC LIMIT 1;";
+                    MySqlCommand ExecuteInstruction = new MySqlCommand(Instruction, Connection);
+                    ExecuteInstruction.Parameters.AddWithValue("@id_cuisinier", id_cuisinier);
+                    MySqlDataReader reader = ExecuteInstruction.ExecuteReader();
+                    bool HasReasults = false;
+                    Console.WriteLine("=== Plat du jour proposé par ce cuisinier ===");
+                    Console.WriteLine();
+                    while (reader.Read())
+                    {
+                        HasReasults = true;
+                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Date de préparation: {reader["date_fabrication"]}");
+                    }
+                    reader.Close();
+                    if (!HasReasults)
+                    {
+                        Console.WriteLine("Aucun plat préparé par ce cuisinier.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
             }
         }
     }
