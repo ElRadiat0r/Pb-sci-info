@@ -10,7 +10,7 @@ using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using System.Reflection.PortableExecutable;
 
-namespace KarateGraphe
+namespace ADUFORET_TDUCOURAU_JESPINOS
 {
     public class Program
     {
@@ -392,6 +392,7 @@ namespace KarateGraphe
                 {
                     Console.Clear();
                     Console.WriteLine("=== Menu Principal ===");
+                    Console.WriteLine();
                     Console.WriteLine("1. Client");
                     Console.WriteLine("2. Cuisinier");
                     Console.WriteLine("3. Commandes");
@@ -415,9 +416,7 @@ namespace KarateGraphe
                             Console.ReadKey();
                             break;
                         case "4":
-                            Console.WriteLine("Module Statistiques à implémenter...");
-                            Console.WriteLine("Appuyez sur une touche pour continuer...");
-                            Console.ReadKey();
+                            Stats(Connection);
                             break;
                         case "5":
                             Console.WriteLine("Module Autres à implémenter...");
@@ -441,6 +440,7 @@ namespace KarateGraphe
                 {
                     Console.Clear();
                     Console.WriteLine("=== Menu Client ===");
+                    Console.WriteLine();
                     Console.WriteLine("1. Ajouter un client");
                     Console.WriteLine("2. Modifier un client");
                     Console.WriteLine("3. Supprimer un client");
@@ -480,6 +480,7 @@ namespace KarateGraphe
             {
                 Console.Clear();
                 Console.WriteLine("=== Ajouter un client ===");
+                Console.WriteLine();
                 Console.Write("Prénom : ");
                 string prenom = Console.ReadLine();
                 Console.Write("Nom : ");
@@ -532,6 +533,7 @@ namespace KarateGraphe
             {
                 Console.Clear();
                 Console.WriteLine("=== Modifier un client ===");
+                Console.WriteLine();
                 Console.Write("Entrez l'ID du client à modifier : ");
                 if (int.TryParse(Console.ReadLine(), out int id_utilisateur))
                 {
@@ -582,6 +584,8 @@ namespace KarateGraphe
             static void DeleteUser(MySqlConnection Connection)
             {
                 Console.Clear();
+                Console.WriteLine("=== Supprimer un client ===");
+                Console.WriteLine();
                 Console.Write("Entrez l'ID du client à supprimer : ");
 
                 if (int.TryParse(Console.ReadLine(), out int id_utilisateur))
@@ -680,6 +684,7 @@ namespace KarateGraphe
                 {
                     Console.Clear();
                     Console.WriteLine("=== Menu Cuisinier ===");
+                    Console.WriteLine();
                     Console.WriteLine("1. Ajouter un cuisinier");
                     Console.WriteLine("2. Modifier un cuisinier");
                     Console.WriteLine("3. Supprimer un cuisinier");
@@ -804,6 +809,129 @@ namespace KarateGraphe
                 {
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
+            }
+            static void Stats(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Nombre de livraisons par cuisinier ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT u.id_utilisateur AS id_cuisinier, u.prenom, u.nom, COUNT(DISTINCT c.id_commande) AS nb_livraisons FROM Utilisateur u JOIN Plat p ON u.id_utilisateur = p.id_cuisinier JOIN LigneCommande lc ON p.id_plat = lc.id_plat JOIN Commande c ON lc.id_commande = c.id_commande WHERE u.est_cuisinier = TRUE GROUP BY u.id_utilisateur, u.prenom, u.nom ORDER BY nb_livraisons DESC;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID: {reader["id_cuisinier"]}, Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Livraisons: {reader["nb_livraisons"]}");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+
+                Console.WriteLine("=== Commandes du mois en cours ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT id_commande, date_commande, montant_total FROM Commande WHERE MONTH(date_commande) = MONTH(CURRENT_DATE()) AND YEAR(date_commande) = YEAR(CURRENT_DATE()) ORDER BY date_commande DESC;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Commande ID: {reader["id_commande"]}, Date: {reader["date_commande"]}, Montant: {reader["montant_total"]}EUR");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+
+                Console.WriteLine("=== Prix moyen d'une commande ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT AVG(montant_total) AS moyenne FROM Commande;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Prix moyen d'une commande: {reader["moyenne"]}EUR");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+
+                Console.WriteLine("=== Total moyen dépensé par client ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT AVG(total) AS total_moyen FROM (SELECT id_client, SUM(montant_total) AS total FROM Commande GROUP BY id_client) AS calcul_preli;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Total moyen dépensé par client depuis son inscription: {reader["total_moyen"]}EUR");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+
+                Console.Write("Entrez l'ID d'un client pour obtenir les informations sur ses commandes : ");
+                if (int.TryParse(Console.ReadLine(), out int id_client))
+                {
+                    try
+                    {
+                        string Instruction = "SELECT c.id_commande, c.date_commande, p.nationalite FROM Commande c JOIN LigneCommande lc ON c.id_commande = lc.id_commande JOIN Plat p ON lc.id_plat = p.id_plat WHERE c.id_client = @id_client GROUP BY c.id_commande, p.nationalite ORDER BY c.date_commande DESC;";
+                        MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                        Command.Parameters.AddWithValue("@id_client", id_client);
+                        MySqlDataReader reader = Command.ExecuteReader();
+                        bool HasReasults = false;
+                        Console.WriteLine("=== Commandes du Client selon la nationnalité des plats ===");
+                        Console.WriteLine();
+                        while (reader.Read())
+                        {
+                            HasReasults = true;
+                            Console.WriteLine($"Commande {reader["id_commande"]}, Date: {reader["date_commande"]}, Nationalité: {reader["nationalite"]}");
+                        }
+                        reader.Close();
+                        if (!HasReasults)
+                        {
+                            Console.WriteLine("Aucune commandes effectuées par ce client.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erreur : " + ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ID invalide.");
+                }
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
             }
         }
     }
