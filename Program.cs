@@ -419,9 +419,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                             Stats(Connection);
                             break;
                         case "5":
-                            Console.WriteLine("Module Autres à implémenter...");
-                            Console.WriteLine("Appuyez sur une touche pour continuer...");
-                            Console.ReadKey();
+                            AutresMenu(Connection);
                             break;
                         case "0":
                             exit = true;
@@ -932,6 +930,158 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                 Console.WriteLine("Appuyez sur une touche pour continuer...");
                 Console.ReadKey();
                 Console.Clear();
+            }
+            static void AutresMenu(MySqlConnection Connection)
+            {
+                bool back = false;
+                while (!back)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Autres ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Afficher la carte végétarienne");
+                    Console.WriteLine("2. Afficher la plus grosse commande");
+                    Console.WriteLine("3. Afficher nos dix clients les plus fidèles");
+                    Console.WriteLine("4. Afficher nos dix plats les plus populaires");
+                    Console.WriteLine("5. Afficher le chiffre d'affaires par cuisinier");
+                    Console.WriteLine("0. Retour au menu principal");
+                    Console.Write("Choisissez une option : ");
+                    string choice = Console.ReadLine();
+                    switch (choice)
+                    {
+                        case "1":
+                            Vegetarien(Connection);
+                            break;
+                        case "2":
+                            BigCommande(Connection);
+                            break;
+                        case "3":
+                            MerciAuClientFidele(Connection);
+                            break;
+                        case "4":
+                            BestPlats(Connection);
+                            break;
+                        case "5":
+                            CACuisiniers(Connection);
+                            break;
+                        case "0":
+                            back = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide.");
+                            break;
+                    }
+                    if (!back)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            static void Vegetarien(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Carte Végétarienne ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT nom_plat, prix_par_personne, nationalite, regime_alimentaire FROM Plat WHERE regime_alimentaire LIKE '%Végétarien%';";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Prix: {reader["prix_par_personne"]}, Nationalité: {reader["nationalite"]}, Caractéristiques: {reader["regime_alimentaire"]}");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void BigCommande(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Notre plus grosse commande ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT c.montant_total, c.date_commande, u.prenom, u.nom FROM Commande c JOIN Utilisateur u ON c.id_client = u.id_utilisateur ORDER BY c.montant_total DESC LIMIT 1;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Date: {reader["date_commande"]}, Montant: {reader["montant_total"]}EUR");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void MerciAuClientFidele(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Classement des Clients fidèles ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT u.id_utilisateur, u.prenom, u.nom, COUNT(c.id_commande) AS nb_commandes FROM Utilisateur u JOIN Commande c ON u.id_utilisateur = c.id_client GROUP BY u.id_utilisateur ORDER BY nb_commandes DESC LIMIT 10;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID: {reader["id_utilisateur"]}, Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Nombre de commandes: {reader["nb_commandes"]}");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void BestPlats(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Nos Plats les plus populaires ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT p.nom_plat, COUNT(lc.id_plat) AS nb_commandes FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat GROUP BY p.nom_plat ORDER BY nb_commandes DESC LIMIT 10;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Nombre de commandes: {reader["nb_commandes"]}");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void CACuisiniers(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Chiffre d'affaires des Cuisiniers ===");
+                Console.WriteLine();
+                try
+                {
+                    string Instruction = "SELECT u.prenom, u.nom, SUM(c.montant_total) AS ca FROM Commande c JOIN LigneCommande lc ON c.id_commande = lc.id_commande JOIN Plat p ON lc.id_plat = p.id_plat JOIN Utilisateur u ON p.id_cuisinier = u.id_utilisateur GROUP BY p.id_cuisinier ORDER BY ca DESC;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Chiffre d'affaires: {reader["ca"]}EUR");
+                    }
+                    reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
             }
         }
     }
