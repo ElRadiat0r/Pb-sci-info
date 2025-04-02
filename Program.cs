@@ -335,6 +335,67 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return false;
         }*/
+
+        public static List<int> Dijkstra(int depart, int arrivee, int[,] matriceUsers)
+{
+    int n = matriceUsers.GetLength(0);
+    int[] distances = new int[n];
+    int[] predecessors = new int[n];
+    bool[] visited = new bool[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        distances[i] = int.MaxValue;
+        predecessors[i] = -1;
+        visited[i] = false;
+    }
+
+    distances[depart] = 0;
+
+    for (int count = 0; count < n - 1; count++)
+    {
+        int u = MinDistance(distances, visited, n);
+        if (u == -1) break;
+        visited[u] = true;
+
+        for (int v = 0; v < n; v++)
+        {
+            if (!visited[v] && matriceUsers[u, v] != 0 && distances[u] != int.MaxValue
+                && distances[u] + matriceUsers[u, v] < distances[v])
+            {
+                distances[v] = distances[u] + matriceUsers[u, v];
+                predecessors[v] = u;
+            }
+        }
+    }
+
+    return chemin(predecessors, arrivee);
+}
+
+private static int MinDistance(int[] distances, bool[] visited, int n)
+{
+    int min = int.MaxValue, minIndex = -1;
+
+    for (int v = 0; v < n; v++)
+    {
+        if (!visited[v] && distances[v] <= min)
+        {
+            min = distances[v];
+            minIndex = v;
+        }
+    }
+    return minIndex;
+}
+
+private static List<int> chemin(int[] predecessors, int arrivee)
+{
+    List<int> path = new List<int>();
+    for (int i = arrivee; i != -1; i = predecessors[i])
+    {
+        path.Insert(0, i);
+    }
+    return path;
+}
         static void Main(string[] args)
         {
             /*string chemin = "soc-karate.mtx";
