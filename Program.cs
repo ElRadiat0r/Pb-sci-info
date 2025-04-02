@@ -337,65 +337,65 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
         }*/
 
         public static List<int> Dijkstra(int depart, int arrivee, int[,] matriceUsers)
-{
-    int n = matriceUsers.GetLength(0);
-    int[] distances = new int[n];
-    int[] predecessors = new int[n];
-    bool[] visited = new bool[n];
-
-    for (int i = 0; i < n; i++)
-    {
-        distances[i] = int.MaxValue;
-        predecessors[i] = -1;
-        visited[i] = false;
-    }
-
-    distances[depart] = 0;
-
-    for (int count = 0; count < n - 1; count++)
-    {
-        int u = MinDistance(distances, visited, n);
-        if (u == -1) break;
-        visited[u] = true;
-
-        for (int v = 0; v < n; v++)
         {
-            if (!visited[v] && matriceUsers[u, v] != 0 && distances[u] != int.MaxValue
-                && distances[u] + matriceUsers[u, v] < distances[v])
+            int n = matriceUsers.GetLength(0);
+            int[] distances = new int[n];
+            int[] predecessors = new int[n];
+            bool[] visited = new bool[n];
+
+            for (int i = 0; i < n; i++)
             {
-                distances[v] = distances[u] + matriceUsers[u, v];
-                predecessors[v] = u;
+                distances[i] = int.MaxValue;
+                predecessors[i] = -1;
+                visited[i] = false;
             }
+
+            distances[depart] = 0;
+
+            for (int count = 0; count < n - 1; count++)
+            {
+                int u = MinDistance(distances, visited, n);
+                if (u == -1) break;
+                visited[u] = true;
+
+                for (int v = 0; v < n; v++)
+                {
+                    if (!visited[v] && matriceUsers[u, v] != 0 && distances[u] != int.MaxValue
+                        && distances[u] + matriceUsers[u, v] < distances[v])
+                    {
+                        distances[v] = distances[u] + matriceUsers[u, v];
+                        predecessors[v] = u;
+                    }
+                }
+            }
+
+            return chemin(predecessors, arrivee);
         }
-    }
 
-    return chemin(predecessors, arrivee);
-}
-
-private static int MinDistance(int[] distances, bool[] visited, int n)
-{
-    int min = int.MaxValue, minIndex = -1;
-
-    for (int v = 0; v < n; v++)
-    {
-        if (!visited[v] && distances[v] <= min)
+        private static int MinDistance(int[] distances, bool[] visited, int n)
         {
-            min = distances[v];
-            minIndex = v;
-        }
-    }
-    return minIndex;
-}
+            int min = int.MaxValue, minIndex = -1;
 
-private static List<int> chemin(int[] predecessors, int arrivee)
-{
-    List<int> path = new List<int>();
-    for (int i = arrivee; i != -1; i = predecessors[i])
-    {
-        path.Insert(0, i);
-    }
-    return path;
-}
+            for (int v = 0; v < n; v++)
+            {
+                if (!visited[v] && distances[v] <= min)
+                {
+                    min = distances[v];
+                    minIndex = v;
+                }
+            }
+            return minIndex;
+        }
+
+        private static List<int> chemin(int[] predecessors, int arrivee)
+        {
+            List<int> path = new List<int>();
+            for (int i = arrivee; i != -1; i = predecessors[i])
+            {
+                path.Insert(0, i);
+            }
+            return path;
+        }
         static void Main(string[] args)
         {
             /*string chemin = "soc-karate.mtx";
@@ -445,7 +445,7 @@ private static List<int> chemin(int[] predecessors, int arrivee)
                 {
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
-        }
+            }
             static void MainMenu(MySqlConnection Connection)
             {
                 bool exit = false;
@@ -472,9 +472,7 @@ private static List<int> chemin(int[] predecessors, int arrivee)
                             CuisinierMenu(Connection);
                             break;
                         case "3":
-                            Console.WriteLine("Module Commandes à implémenter...");
-                            Console.WriteLine("Appuyez sur une touche pour continuer...");
-                            Console.ReadKey();
+                            CommandeMenu(Connection);
                             break;
                         case "4":
                             Stats(Connection);
@@ -1138,6 +1136,151 @@ private static List<int> chemin(int[] predecessors, int arrivee)
                         Console.WriteLine($"Prénom: {reader["prenom"]}, Nom: {reader["nom"]}, Chiffre d'affaires: {reader["ca"]}EUR");
                     }
                     reader.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void CommandeMenu(MySqlConnection Connection)
+            {
+                bool back = false;
+                while (!back)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Commmande ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Créer une commande");
+                    Console.WriteLine("2. Modifier une commande");
+                    Console.WriteLine("3. Afficher une commande");
+                    Console.WriteLine("0. Retour au menu principal");
+                    Console.Write("Choisissez une option : ");
+                    string choice = Console.ReadLine();
+                    switch (choice)
+                    {
+                        case "1":
+                            AddCommande(Connection);
+                            break;
+                        case "2":
+                            BigCommande(Connection);
+                            break;
+                        case "3":
+                            MerciAuClientFidele(Connection);
+                            break;
+                        case "0":
+                            back = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide.");
+                            break;
+                    }
+                    if (!back)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            static void AddCommande(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.WriteLine("=== Ajouter une commande ===");
+                Console.Write("Entrez l'ID du client : ");
+                if (!int.TryParse(Console.ReadLine(), out int id_client))
+                {
+                    Console.WriteLine("ID invalide.");
+                    return;
+                }
+                string Instruction = "SELECT est_client FROM Utilisateur WHERE id_utilisateur = @id_client;";
+                MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                Command.Parameters.AddWithValue("@id_client", id_client);
+                bool isClient = false;
+                using (MySqlDataReader reader = Command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        isClient = reader.GetBoolean("est_client");
+                    }
+                }
+                if (!isClient)
+                {
+                    Console.WriteLine("L'ID spécifié ne correspond pas à un client existant.");
+                    Console.WriteLine("Veuillez créer un nouvel utilisateur client.");
+                    return;
+                }
+                List<(int platId, int quantity)> OrderLines = new List<(int, int)>();
+                decimal MontantTotal = 0m;
+
+                while (1 == 1)//Oui c'est pas très propre et ça fait un peu bricolage mais je ne voyais pas comment faire sinon vu qu'avec un booléen si j'utilise pas le break le programme va continuer et essayer d'ajouter un plat ID0 qui n'existe pas.
+                {
+                    Console.Write("Entrez l'ID du plat à ajouter (0 pour terminer) : ");
+                    if (!int.TryParse(Console.ReadLine(), out int id_plat))
+                    {
+                        Console.WriteLine("ID de plat invalide.");
+                        continue;
+                    }
+                    if (id_plat == 0)
+                    {
+                        break;
+                    }
+                    string InstructionPlat = "SELECT nom_plat, prix_par_personne FROM Plat WHERE id_plat = @id_plat;";
+                    MySqlCommand CommandPlat = new MySqlCommand(InstructionPlat, Connection);
+                    CommandPlat.Parameters.AddWithValue("@id_plat", id_plat);
+                    using (MySqlDataReader platReader = CommandPlat.ExecuteReader())
+                    {
+                        if (platReader.Read())
+                        {
+                            string NomPlat = platReader.GetString("nom_plat");
+                            decimal prix = platReader.GetDecimal("prix_par_personne");
+                            Console.WriteLine($"Plat sélectionné: {NomPlat}, Prix: {prix}EUR");
+                            Console.Write("Entrez la quantité: ");
+                            if (!int.TryParse(Console.ReadLine(), out int quantite) || quantite <= 0)
+                            {
+                                Console.WriteLine("Quantité invalide. Ce plat ne sera pas ajouté.");
+                                continue;//Sinon ça plante donc je reviens directement au début du while en ignorant le code qui suit.
+                            }
+                            Console.WriteLine($"Vous avez sélectionné {quantite}X {NomPlat}.");
+                            OrderLines.Add((id_plat, quantite));
+                            MontantTotal += prix * quantite;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Aucun plat trouvé avec cet ID.");
+                        }
+                    }
+                }
+                if (OrderLines.Count == 0)
+                {
+                    Console.WriteLine("Aucun plat ajouté, commande annulée.");
+                    return;
+                }
+                DateTime date_commande = DateTime.Now;
+                string InstructionOrder = "INSERT INTO Commande (id_client, date_commande, montant_total) VALUES (@id_client, @date_commande, @montant_total);";
+                MySqlCommand CommandOrder = new MySqlCommand(InstructionOrder, Connection);
+                CommandOrder.Parameters.AddWithValue("@id_client", id_client);
+                CommandOrder.Parameters.AddWithValue("@date_commande", date_commande);
+                CommandOrder.Parameters.AddWithValue("@montant_total", MontantTotal);
+                try
+                {
+                    int rowsAffected = CommandOrder.ExecuteNonQuery();
+                    if (rowsAffected > 0)
+                    {
+                        long NewOrderID = CommandOrder.LastInsertedId;
+                        Console.WriteLine($"Commande ajoutée avec succès ! ID commande : {NewOrderID}, Montant: {MontantTotal}EUR");
+                        foreach (var line in OrderLines)
+                        {
+                            string CommandLigne = "INSERT INTO LigneCommande (id_commande, id_plat, quantite) VALUES (@id_commande, @id_plat, @quantite);";
+                            MySqlCommand InstructionLigne = new MySqlCommand(CommandLigne, Connection);
+                            InstructionLigne.Parameters.AddWithValue("@id_commande", NewOrderID);
+                            InstructionLigne.Parameters.AddWithValue("@id_plat", line.platId);
+                            InstructionLigne.Parameters.AddWithValue("@quantite", line.quantity);
+                            InstructionLigne.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Erreur lors de l'insertion des ligne de la commande.");
+                    }
                 }
                 catch (Exception ex)
                 {
