@@ -1162,10 +1162,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                             AddCommande(Connection);
                             break;
                         case "2":
-                            BigCommande(Connection);
+                            EditCommande(Connection);
                             break;
                         case "3":
-                            MerciAuClientFidele(Connection);
+                            ViewCommande(Connection);
                             break;
                         case "0":
                             back = true;
@@ -1285,6 +1285,146 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                 catch (Exception ex)
                 {
                     Console.WriteLine("Erreur : " + ex.Message);
+                }
+            }
+            static void EditCommande(MySqlConnection connection)
+            {
+                Console.Clear();
+                Console.Write("Entrez l'ID de la commande à modifier : ");
+                if (int.TryParse(Console.ReadLine(), out int idCommande))
+                {
+                    try
+                    {
+                        string Instruction = "SELECT id_client, date_commande FROM Commande WHERE id_commande = @idCommande;";
+                        MySqlCommand CommandCommande = new MySqlCommand(Instruction, connection);
+                        CommandCommande.Parameters.AddWithValue("@idCommande", idCommande);
+                        MySqlDataReader reader = CommandCommande.ExecuteReader();
+                        if (!reader.Read())
+                        {
+                            Console.WriteLine("Aucune commande trouvée avec cet ID.");
+                            reader.Close();
+                            return;
+                        }
+                        int idClient = Convert.ToInt32(reader["id_client"]);
+                        DateTime DateCommande = Convert.ToDateTime(reader["date_commande"]);
+                        reader.Close();
+                        Console.WriteLine($"Commande trouvée : Client ID: {idClient}, Date: {DateCommande}");
+
+                        DateTime NewDateEdit = DateTime.Now;
+                        string DeleteOldInstruction = "DELETE FROM LigneCommande WHERE id_commande = @idCommande;";
+                        MySqlCommand DeleteOldCommand = new MySqlCommand(DeleteOldInstruction, connection);
+                        DeleteOldCommand.Parameters.AddWithValue("@idCommande", idCommande);
+                        DeleteOldCommand.ExecuteNonQuery();
+                        List<(int idPlat, int quantite)> NouvelleCommande = new List<(int, int)>();
+                        decimal MontantTotal = 0m;
+                        while (1 == 1)//Le retour
+                        {
+                            Console.Write("Entrez l'ID du plat (ou 0 pour terminer) : ");
+                            if (!int.TryParse(Console.ReadLine(), out int idPlat) || idPlat == 0)
+                            {
+                                break;
+                            }
+                            Console.Write("Quantité : ");
+                            if (!int.TryParse(Console.ReadLine(), out int quantite) || quantite <= 0)
+                            {
+                                Console.WriteLine("Quantité invalide.");
+                                continue;
+                            }
+                            string InstructionPlat = "SELECT nom_plat, prix_par_personne FROM Plat WHERE id_plat = @idPlat;";
+                            MySqlCommand CommandPlat = new MySqlCommand(InstructionPlat, connection);
+                            CommandPlat.Parameters.AddWithValue("@idPlat", idPlat);
+                            MySqlDataReader PlatReader = CommandPlat.ExecuteReader();
+                            if (PlatReader.Read())
+                            {
+                                string NomPlat = PlatReader["nom_plat"].ToString();
+                                decimal prix = Convert.ToDecimal(PlatReader["prix_par_personne"]);
+                                MontantTotal += prix * quantite;
+                                NouvelleCommande.Add((idPlat, quantite));
+                                Console.WriteLine($"Ajouté : {quantite}X {NomPlat}, {prix * quantite}EUR");
+                            }
+                            else
+                            {
+                                Console.WriteLine("ID du plat invalide.");
+                            }
+                            PlatReader.Close();
+                        }
+                        foreach (var (idPlat, quantite) in NouvelleCommande)
+                        {
+                            string NewLineOrder = "INSERT INTO LigneCommande (id_commande, id_plat, quantite) VALUES (@idCommande, @idPlat, @quantite);";
+                            MySqlCommand InstructionOrder = new MySqlCommand(NewLineOrder, connection);
+                            InstructionOrder.Parameters.AddWithValue("@idCommande", idCommande);
+                            InstructionOrder.Parameters.AddWithValue("@idPlat", idPlat);
+                            InstructionOrder.Parameters.AddWithValue("@quantite", quantite);
+                            InstructionOrder.ExecuteNonQuery();
+                        }
+                        string updateCommandeQuery = "UPDATE Commande SET date_commande = @newDate, montant_total = @montantTotal WHERE id_commande = @idCommande;";
+                        MySqlCommand updateCmd = new MySqlCommand(updateCommandeQuery, connection);
+                        updateCmd.Parameters.AddWithValue("@newDate", DateCommande);
+                        updateCmd.Parameters.AddWithValue("@montantTotal", MontantTotal);
+                        updateCmd.Parameters.AddWithValue("@idCommande", idCommande);
+                        updateCmd.ExecuteNonQuery();
+                        Console.WriteLine($"Commande mise à jour avec succès ! Nouveau total : {MontantTotal}EUR");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erreur : " + ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ID de commande invalide.");
+                }
+            }
+            static void ViewCommande(MySqlConnection Connection)
+            {
+                Console.Clear();
+                Console.Write("Entrez l'ID de la commande à afficher : ");
+                if (int.TryParse(Console.ReadLine(), out int IDCommande))
+                {
+                    try
+                    {
+                        string Instruction = "SELECT c.id_commande, c.date_commande, c.montant_total, u.id_utilisateur, u.prenom, u.nom FROM Commande c JOIN Utilisateur u ON c.id_client = u.id_utilisateur WHERE c.id_commande = @idCommande;";
+                        MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                        Command.Parameters.AddWithValue("@idCommande", IDCommande);
+                        MySqlDataReader Reader = Command.ExecuteReader();
+                        if (!Reader.Read())
+                        {
+                            Console.WriteLine("Aucune commande trouvée avec cet ID.");
+                            Reader.Close();
+                            return;
+                        }
+                        int IDClient = Convert.ToInt32(Reader["id_utilisateur"]);
+                        string Prenom = Reader["prenom"].ToString();
+                        string Nom = Reader["nom"].ToString();
+                        DateTime DateCommande = Convert.ToDateTime(Reader["date_commande"]);
+                        decimal MontantTotal = Convert.ToDecimal(Reader["montant_total"]);
+                        Reader.Close();
+                        Console.WriteLine($"Détails de la commande {IDCommande}");
+                        Console.WriteLine($"Client: {Prenom} {Nom} (ID: {IDClient})");
+                        Console.WriteLine($"Date: {DateCommande}");
+                        Console.WriteLine($"Montant total: {MontantTotal}EUR");
+                        string InstructionContenuCommande = "SELECT p.nom_plat, p.prix_par_personne, lc.quantite FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat WHERE lc.id_commande = @idCommande;";
+                        MySqlCommand CommandePlat = new MySqlCommand(InstructionContenuCommande, Connection);
+                        CommandePlat.Parameters.AddWithValue("@idCommande", IDCommande);
+                        MySqlDataReader ReaderPlats = CommandePlat.ExecuteReader();
+                        Console.WriteLine("Plats commandés :");
+                        while (ReaderPlats.Read())
+                        {
+                            string NomPlat = ReaderPlats["nom_plat"].ToString();
+                            decimal prix = Convert.ToDecimal(ReaderPlats["prix_par_personne"]);
+                            int quantite = Convert.ToInt32(ReaderPlats["quantite"]);
+                            Console.WriteLine($"- {quantite}X {NomPlat}, {prix}EUR/unité, {prix * quantite}EUR");
+                        }
+                        ReaderPlats.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erreur : " + ex.Message);
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("ID invalide.");
                 }
             }
         }
