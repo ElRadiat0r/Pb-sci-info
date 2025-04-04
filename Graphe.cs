@@ -25,12 +25,13 @@ namespace KarateGraphe
             string ligne = "";
             ligne = lecteurstation.ReadLine();
 
-            string[] header = ligne.Split(";");
+            string[] tabLine = ligne.Split(";");
 
             while ((ligne = lecteurstation.ReadLine()) != null)
             {
-                header = ligne.Split(";");
-                Noeud gare = new Noeud(ligne[0], ligne[1], ligne[2], ligne[3], ligne[4]);
+                tabLine = ligne.Split(";");
+                
+                Noeud gare = new Noeud(Convert.ToInt32(tabLine[0]), Convert.ToInt32(tabLine[1]), tabLine[2], double.Parse(tabLine[3]), double.Parse(tabLine[4]));
                 if(gare != null)
                 {
                     AllNodes.Add(gare);
@@ -38,11 +39,21 @@ namespace KarateGraphe
                
             }
 
+            ligne = lecteurarcs.ReadLine();
+            int stationId = -1;
+            int Departure = -1;
+            int Destination = -1;
+            int tripValue = -1;
+
             while ((ligne = lecteurarcs.ReadLine()) != null)
             {
-                header = ligne.Split(";");
+                tabLine = ligne.Split(";");
 
-                Lien arcs = new Lien(ligne[0], ligne[1], ligne[2], ligne[3], ligne[4]);
+                Lien arcs = new Lien(Convert.ToInt32(tabLine[0]), tabLine[1], Convert.ToInt32(tabLine[0]), Convert.ToInt32(tabLine[3]), Convert.ToInt32(tabLine[4]));
+                if (arcs != null)
+                {
+                    AllLinks.Add(arcs);
+                }
             }
 
 
