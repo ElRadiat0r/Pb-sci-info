@@ -1,4 +1,4 @@
-﻿using KarateGraph;
+using KarateGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +9,10 @@ using Graphviz4Net.Graphs;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using System.Reflection.PortableExecutable;
+using KarateGraphe;
+using System.ComponentModel;
 
-namespace ADUFORET_TDUCOURAU_JESPINOS
+namespace KarateGraphe
 {
     public class Program
     {
@@ -26,7 +28,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             ligne = lecteur.ReadLine();
 
             string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
-            
+
             if (header[2] == "coordinate") // on vérfie que le format est coordinate
             {
                 Console.WriteLine("format = coordinate");
@@ -77,20 +79,45 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return matrice;
         }
-
         public static int[,] creationMatriceCSV(Graphe graphe)
         {
-            int[,] matriceUsers = new int[graphe.AllNodes.Count, graphe.AllNodes.Count];
-        
-            for(int i = 0;i < graphe.AllLinks.Count; i++)
-            {
-                matriceUsers[graphe.AllLinks[i].startingNode, graphe.AllLinks[i].endingNode] = graphe.AllLinks[i].tripValue;
-            }
-        
-            return matriceUsers;
-        }
+            int n = graphe.AllNodes.Count;
+            int[,] matriceAdjacence = new int[n, n];
 
-        
+            // Initialisation de la matrice avec des valeurs nulles
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                {
+                    matriceAdjacence[i, j] = 0; // Pas de lien par défaut
+                }
+            }
+
+            // Remplissage de la matrice avec les liens existants
+            foreach (var lien in graphe.AllLinks)
+            {
+                int depart = lien.startingNode;
+                int arrivee = lien.endingNode;
+                int poids = lien.tripValue;
+
+                // Recherche des indices correspondants aux ID des noeuds
+                int indexDepart = graphe.AllNodes.FindIndex(node => node.NodeID == depart);
+                int indexArrivee = graphe.AllNodes.FindIndex(node => node.NodeID == arrivee);
+
+                if (indexDepart != -1 && indexArrivee != -1)
+                {
+                    matriceAdjacence[indexDepart, indexArrivee] = poids;
+
+                    // Si le graphe est non orienté, on ajoute aussi l'arête inverse
+                    if (!lien.orientation)
+                    {
+                        matriceAdjacence[indexArrivee, indexDepart] = poids;
+                    }
+                }
+            }
+
+            return matriceAdjacence;
+        }
         public static Dictionary<int, List<int>> creationListeAdjacence(string chemin)
         {
             var adjacencyList = new Dictionary<int, List<int>>();
@@ -174,11 +201,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
         {
             visite[sommet] = true;
 
-            if(affichage)
+            if (affichage)
             {
                 Console.WriteLine(sommet);
             }
-            
+
             c++;
 
             for (int i = 0; i < matrice.GetLength(0); i++)
@@ -190,7 +217,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                     pile.remove();
                 }
             }
-            return c;   
+            return c;
         }
         public static int parcoursLargeur(int[,] matrice, int depart)
         {
@@ -210,7 +237,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
 
                 for (int i = 0; i < matrice.GetLength(0); i++)
                 {
-                    if (matrice[sommet, i] !=0 && !visite[i])
+                    if (matrice[sommet, i] != 0 && !visite[i])
                     {
                         visite[i] = true;
                         file.Enqueue(i);
@@ -219,88 +246,49 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return c;
         }
-        static void GenererImageGraphe(int[,] matrice)
+        public static void GenererImageGraphe(int[,] matrice)
         {
-
-            string cheminDot = "graph.dot";
-            string[] colors = { "red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "gray" };
-            Random rand = new Random();
-
             int n = matrice.GetLength(0);
-            string dotContent = "graph G {\n";
+            string dotFilePath = "graph.dot";
+            string outputImagePath = "graph.png";
 
-            // Ajouter les nœuds avec des couleurs aléatoires
-            for (int i = 0; i < n; i++)
+            using (StreamWriter writer = new StreamWriter(dotFilePath))
             {
-                string color = colors[rand.Next(colors.Length)];
-                dotContent += $"    {i} [style=filled, fillcolor={color}];\n";
-            }
+                writer.WriteLine("digraph G {");
 
-            // Ajouter les arêtes
-            for (int i = 0; i < n; i++)
-            {
-                for (int j = i + 1; j < n; j++) // Graphe non orienté, éviter les doublons
+                for (int i = 0; i < n; i++)
                 {
-                    if (matrice[i, j] == 1)
+                    for (int j = 0; j < n; j++)
                     {
-                        dotContent += $"    {i} -- {j};\n";
+                        if (matrice[i, j] != 0)
+                        {
+                            writer.WriteLine($"    {i} -> {j} [label=\"{matrice[i, j]}\"];");
+                        }
                     }
                 }
+
+                writer.WriteLine("}");
             }
 
-            dotContent += "}";
+            // Générer l'image avec Graphviz
+            Process process = new Process();
+            process.StartInfo.FileName = "dot";  // Assurez-vous que Graphviz est installé et accessible dans PATH
+            process.StartInfo.Arguments = $"-Tpng {dotFilePath} -o {outputImagePath}";
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
+            process.Start();
+            process.WaitForExit();
 
-            // Sauvegarder le fichier DOT
-            File.WriteAllText(cheminDot, dotContent);
-            Console.WriteLine($"Fichier DOT généré : {Path.GetFullPath(cheminDot)}");
-
-            // génération de l'image avec Graphviz
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                FileName = @"C:\Program Files\Graphviz\bin\dot.exe", // je précise la location de DOT parce l'ide ne le trouvais pas
-                Arguments = "-Tpng graph.dot -o graph.png",
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-
-            try
-            {
-                Process process = Process.Start(psi);
-                if (process == null)
-                {
-                    Console.WriteLine("Le processus n'a pas pu être démarré.");
-                }
-                else
-                {
-                    string output = process.StandardOutput.ReadToEnd();
-                    string errors = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-
-                    if (!string.IsNullOrEmpty(errors))
-                    {
-                        Console.WriteLine("Erreurs Graphviz : " + errors);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Graph généré avec succès : graph.png");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Erreur lors du démarrage du processus : " + ex.Message);
-            }
+            Console.WriteLine($"Graphe généré : {outputImagePath}");
         }
-
         public static bool estConnexe(int[,] matrice)
         {
             bool resultat = true;
 
-            for(int i = 0; i<matrice.GetLength(0);i++)
+            for (int i = 0; i < matrice.GetLength(0); i++)
             {
-                if(parcoursProfondeur(matrice, i, false) != matrice.GetLength(0)) //on fait un dfs depuis chaque noeud et on vérifie qu'il passe par tous les noeuds
+                if (parcoursProfondeur(matrice, i, false) != matrice.GetLength(0)) //on fait un dfs depuis chaque noeud et on vérifie qu'il passe par tous les noeuds
                 {
                     resultat = false;
                 }
@@ -308,7 +296,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
 
             return resultat;
         }
-
         public static bool ContientCycle(int[,] matrice)
         {
             int n = matrice.GetLength(0);
@@ -324,7 +311,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return false;
         }
-
         private static bool RechercheCycle(int sommet, int[,] matrice, bool[] visite, int parent)
         {
             visite[sommet] = true;
@@ -349,7 +335,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return false;
         }
-
         public static List<int> Dijkstra(int depart, int arrivee, int[,] matriceUsers)
         {
             int n = matriceUsers.GetLength(0);
@@ -385,7 +370,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
 
             return chemin(predecessors, arrivee);
         }
-
         private static int MinDistance(int[] distances, bool[] visited, int n)
         {
             int min = int.MaxValue, minIndex = -1;
@@ -400,7 +384,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return minIndex;
         }
-
         private static List<int> chemin(int[] predecessors, int arrivee)
         {
             List<int> path = new List<int>();
@@ -410,93 +393,203 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return path;
         }
-
         public static List<int> BellmanFord(int depart, int arrivee, int[,] matriceUsers)
-{
-    int taille = matriceUsers.GetLength(0);
-    List<int> result = new List<int>();
-    int[] dist = new int[taille];
-    int[] precedent = new int[taille];
-    for (int i = 0; i < taille; i++)
-    {
-        dist[i] = int.MaxValue;
-        precedent[i] = -1;
-    }
-    dist[depart] = 0;
-
-    for (int i = 0; i < taille-1; i++)
-    {
-        for (int ii = 0; ii < taille; ii++)
         {
-            for (int iii = 0; iii < taille; iii++)
+            int taille = matriceUsers.GetLength(0);
+            List<int> result = new List<int>();
+            int[] dist = new int[taille];
+            int[] precedent = new int[taille];
+            for (int i = 0; i < taille; i++)
             {
-                if (matriceUsers[ii, iii] != 0 && dist[ii] != int.MaxValue && dist[ii] + matriceUsers[ii, iii] < dist[iii])
+                dist[i] = int.MaxValue;
+                precedent[i] = -1;
+            }
+            dist[depart] = 0;
+
+            for (int i = 0; i < taille - 1; i++)
+            {
+                for (int ii = 0; ii < taille; ii++)
                 {
-                    dist[iii] = dist[ii] + matriceUsers[ii, iii];
-                    precedent[iii] = ii;
+                    for (int iii = 0; iii < taille; iii++)
+                    {
+                        if (matriceUsers[ii, iii] != 0 && dist[ii] != int.MaxValue && dist[ii] + matriceUsers[ii, iii] < dist[iii])
+                        {
+                            dist[iii] = dist[ii] + matriceUsers[ii, iii];
+                            precedent[iii] = ii;
+                        }
+                    }
                 }
             }
-        }
-    }
 
-    for (int i = 0; i < taille; i++)
-    {
-        for (int ii = 0; ii < taille; ii++)
-        {
-            if (matriceUsers[i, ii] != 0 && dist[i] !=int.MaxValue && dist[i] +matriceUsers[i, ii] < dist[ii])
+            for (int i = 0; i < taille; i++)
             {
-                throw new Exception("Le graphe contient un cycle de poids négatif.");
+                for (int ii = 0; ii < taille; ii++)
+                {
+                    if (matriceUsers[i, ii] != 0 && dist[i] != int.MaxValue && dist[i] + matriceUsers[i, ii] < dist[ii])
+                    {
+                        throw new Exception("Le graphe contient un cycle de poids négatif.");
+                    }
+                }
             }
+
+            if (dist[arrivee] == int.MaxValue)
+                return result;
+
+            for (int i = arrivee; i != -1; i = precedent[i])
+            {
+                result.Insert(0, i);
+            }
+
+            return result;
         }
-    }
-    
-    if (dist[arrivee] == int.MaxValue)
-        return result;
+        public static List<int> FloydWarshall(int[,] graph, int source, int target)
+        {
+            int V = graph.GetLength(0);
+            int[,] dist = new int[V, V];
+            int[,] next = new int[V, V];
 
-    for (int i = arrivee; i != -1; i = precedent[i])
-    {
-        result.Insert(0, i);
-    }
+            for (int i = 0; i < V; i++)
+            {
+                for (int j = 0; j < V; j++)
+                {
+                    if (graph[i, j] != 0 || i == j)
+                    {
+                        dist[i, j] = graph[i, j] != 0 ? graph[i, j] : (i == j ? 0 : int.MaxValue);
+                        next[i, j] = graph[i, j] != 0 ? j : -1;
+                    }
+                    else
+                    {
+                        dist[i, j] = int.MaxValue;
+                        next[i, j] = -1;
+                    }
+                }
+            }
 
-    return result;
-}
-        
+            for (int k = 0; k < V; k++)
+            {
+                for (int i = 0; i < V; i++)
+                {
+                    for (int j = 0; j < V; j++)
+                    {
+                        if (dist[i, k] != int.MaxValue && dist[k, j] != int.MaxValue && dist[i, k] + dist[k, j] < dist[i, j])
+                        {
+                            dist[i, j] = dist[i, k] + dist[k, j];
+                            next[i, j] = next[i, k];
+                        }
+                    }
+                }
+            }
+
+            if (next[source, target] == -1)
+                return new List<int>();
+
+            List<int> path = new List<int>();
+            int current = source;
+            while (current != target)
+            {
+                if (current == -1)
+                    return new List<int>();
+                path.Add(current);
+                current = next[current, target];
+            }
+            path.Add(target);
+
+            return path;
+        }
+        public static void livraison(Graphe graphe)
+        {
+            
+            List<Noeud> listeStations = new List<Noeud>();
+            int arrivee = 0;
+            int depart = 0;
+            string tempArrivee = "";
+            string tempDepart = "";
+            string stationDepart = "";
+            string stationArrivee = "";
+            int numLigne = -1;
+            int numStation = -1;
+
+            ///choix adresse de départ
+            while (numLigne <= 0 || numLigne > 14)
+            {
+                Console.WriteLine("choix de l'adresse de départ : entrez numéro de la ligne (entre 1 et 14) :");
+                numLigne = Convert.ToInt32(Console.ReadLine());
+            }
+            
+            for (int i = 0; i < graphe.AllNodes.Count; i++)
+            {
+                if (graphe.AllNodes[i].libelleLigne == numLigne)
+                {
+                    listeStations.Add(graphe.AllNodes[i]);
+                    tempDepart = graphe.AllNodes[i].libelleStation;
+                    Console.WriteLine("numéro station : " + graphe.AllNodes[i].NodeID + " : " + tempDepart);
+                }
+            }
+            Console.WriteLine("choix de la station : entrez le numéro de la station : ");
+            numStation = Convert.ToInt32(Console.ReadLine());
+            for (int i = 0; i < listeStations.Count; i++)
+            {
+                if (graphe.AllNodes[i].NodeID == numStation)
+                {
+                    depart = graphe.AllNodes[i].NodeID;
+                    stationDepart = graphe.AllNodes[i].libelleStation;
+                    Console.WriteLine("station de départ : " + graphe.AllNodes[i].libelleStation);
+                }
+            }
+
+            ///choix adresse de livraison
+            Console.WriteLine();
+            listeStations = new List<Noeud>();
+            numLigne = -1;
+            while (numLigne <= 0 || numLigne > 14)
+            {
+                Console.WriteLine("choix de l'adresse de livraison : entrez numéro de la ligne (entre 1 et 14) :");
+                numLigne = Convert.ToInt32(Console.ReadLine());
+            }
+            for (int i = 0; i < graphe.AllNodes.Count; i++)
+            {
+                if (graphe.AllNodes[i].libelleLigne == numLigne)
+                {
+                    listeStations.Add(graphe.AllNodes[i]);
+                    tempArrivee = graphe.AllNodes[i].libelleStation;
+                    Console.WriteLine("numéro station : " + graphe.AllNodes[i].NodeID + " : " + tempArrivee);
+                }
+
+            }
+            Console.WriteLine("choix de la station : entrez le numéro de la station : ");
+            numStation = Convert.ToInt32(Console.ReadLine());
+            for (int i = 0; i < listeStations.Count; i++)
+            {
+                if (graphe.AllNodes[i].NodeID == numStation)
+                {
+                    arrivee = graphe.AllNodes[i].NodeID;
+                    stationArrivee  = graphe.AllNodes[i].libelleStation;
+                    Console.WriteLine("station de livraison : " + graphe.AllNodes[i].libelleStation);
+                }
+            }
+
+
+            Console.WriteLine();
+            int[,] matriceMetro = creationMatriceCSV(graphe);
+            GenererImageGraphe(matriceMetro);
+            List<int> cheminLePLusCourt =  Dijkstra(depart, arrivee, matriceMetro);
+
+            Console.WriteLine("le chemin le plus court entre la station " + stationDepart + " et la station " + stationArrivee + " est : ");
+            for(int i  = 0; i< cheminLePLusCourt.Count; i++)
+            {
+                Console.WriteLine("Station " + i + " : " + cheminLePLusCourt[i]);
+            }
+
+
+        }
+
         static void Main(string[] args)
         {
-            /*string chemin = "soc-karate.mtx";
-            StreamReader fichier = new(chemin);
-            int[,] matriceUsers = creationMatrice(chemin); //création de la matrice avec une fonction
+                      
+            
+            string mdp = "8Q88445Q";
 
-            string ligne = fichier.ReadLine();
-            //remplissage de la matrice :
-            matriceUsers = RemplissageMatrice(matriceUsers, ligne, fichier);
-
-            //affichage de la matrice :
-            Console.WriteLine("Matrice d'adjacence : ");
-            affichageMatrice(matriceUsers);
-
-            Console.WriteLine("\n Liste d'adjacence : ");
-            //création et affichage d'une liste d'adjacence
-            Dictionary<int, List<int>> listeAdjacence = creationListeAdjacence(chemin);
-            affichageListe(listeAdjacence);
-
-            //création d'un graphe
-            Graphe UnGraphe = new Graphe(matriceUsers);
-            //UnGraphe.AfficherGraphe();
-
-            Console.WriteLine("\n on effectue un parcours en profondeur :");
-            int nbNoeudsprofondeur = parcoursProfondeur(matriceUsers, 0, true);
-            Console.WriteLine("\n on effectue un parcours en largeur :");
-            int nbNoeudslargeur = parcoursLargeur(matriceUsers, 0);
-
-            //Console.WriteLine("création de l'image du graphe : ");
-            //GenererImageGraphe(matriceUsers);
-
-            //On vérifie si le graphe est connexe :
-            Console.WriteLine("Le graphe est-il connexe ? " + estConnexe(matriceUsers));
-            //On vérifie si le graphe contient des cycles :
-            Console.WriteLine("Le graphe contient-il des cylces ? " + ContientCycle(matriceUsers));*/
-            string PathWayToDatabase = "server=localhost;user=root;password=root;database=LivInParis;";
+            string PathWayToDatabase = "server=localhost;user=root;password="+mdp+";database=LivInParis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
             {
                 try
@@ -1276,7 +1369,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                 List<(int platId, int quantity)> OrderLines = new List<(int, int)>();
                 decimal MontantTotal = 0m;
 
-                while (1 == 1)//Oui c'est pas très propre et ça fait un peu bricolage mais je ne voyais pas comment faire sinon vu qu'avec un booléen si j'utilise pas le break le programme va continuer et essayer d'ajouter un plat ID0 qui n'existe pas.
+                while (1 == 1)///Oui c'est pas très propre et ça fait un peu bricolage mais je ne voyais pas comment faire sinon vu qu'avec un booléen si j'utilise pas le break le programme va continuer et essayer d'ajouter un plat ID0 qui n'existe pas.
                 {
                     Console.Write("Entrez l'ID du plat à ajouter (0 pour terminer) : ");
                     if (!int.TryParse(Console.ReadLine(), out int id_plat))
@@ -1302,7 +1395,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                             if (!int.TryParse(Console.ReadLine(), out int quantite) || quantite <= 0)
                             {
                                 Console.WriteLine("Quantité invalide. Ce plat ne sera pas ajouté.");
-                                continue;//Sinon ça plante donc je reviens directement au début du while en ignorant le code qui suit.
+                                continue;///Sinon ça plante donc je reviens directement au début du while en ignorant le code qui suit.
                             }
                             Console.WriteLine($"Vous avez sélectionné {quantite}X {NomPlat}.");
                             OrderLines.Add((id_plat, quantite));
@@ -1340,7 +1433,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                             InstructionLigne.Parameters.AddWithValue("@id_plat", line.platId);
                             InstructionLigne.Parameters.AddWithValue("@quantite", line.quantity);
                             InstructionLigne.ExecuteNonQuery();
+
+                            
                         }
+                        ///creation graphe avec le fichier Excel :
+                        Graphe metro = new Graphe("MetroParisNoeuds.csv", "MetroParisArcs.csv");
+                        livraison(metro);
                     }
                     else
                     {
@@ -1382,7 +1480,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                         DeleteOldCommand.ExecuteNonQuery();
                         List<(int idPlat, int quantite)> NouvelleCommande = new List<(int, int)>();
                         decimal MontantTotal = 0m;
-                        while (1 == 1)//Le retour
+                        while (1 == 1)///Le retour
                         {
                             Console.Write("Entrez l'ID du plat (ou 0 pour terminer) : ");
                             if (!int.TryParse(Console.ReadLine(), out int idPlat) || idPlat == 0)
