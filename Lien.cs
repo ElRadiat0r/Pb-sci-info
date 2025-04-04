@@ -4,20 +4,23 @@ namespace KarateGraphe
 {
     public class Lien
     {
-        public int StartingNode;
-        public int EndingNode;
-        public int TripValue;
-        public bool Orientation;
-        public Lien(int Departure, int Destination, int Trip, bool orientation = false)
+        public int stationId;
+        public char libelleStation;
+        public int startingNode;
+        public int endingNode;
+        public int tripValue;
+        public bool orientation;
+        public Lien(int Stationid, char Libellestation, int Departure, int Destination, int TripValue, bool orientation = false)
         {
-            StartingNode = Departure;
-            EndingNode = Destination;
-            TripValue = Trip;
-            Orientation = orientation;
+            stationId = Stationid;
+            libelleStation = Libellestation;
+            startingNode = Departure;
+            endingNode = Destination;
+            tripValue = TripValue;
         }
         public override string ToString()
         {
-            return StartingNode + (Orientation ? " ---> " : " <---> ") + EndingNode + "\nPoids : " + TripValue + "\n";
+            return startingNode + (orientation ? " ---> " : " <---> ") + endingNode + "\nPoids : " + tripValue + "\n";
         }
     }
 }
