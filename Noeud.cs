@@ -11,11 +11,21 @@ namespace KarateGraphe
         private int NodeID;
         private int EnteringDegree;
         private int OutgoingDegree;
-        public Noeud(int ID)
+        public int libelleLigne;
+        public char libelleStation;
+        public int latitude;
+        public int longitude;
+
+        public Noeud(int ID, int Libelleligne, char Libellestation, int Longitude, int Latitude)
         {
             NodeID = ID;
             EnteringDegree = 0;
             OutgoingDegree = 0;
+            libelleLigne = Libelleligne;
+            libelleStation = Libellestation;
+            longitude = Longitude;
+            latitude = Latitude;
+
         }
         public int ID
         {
