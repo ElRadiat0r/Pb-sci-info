@@ -396,6 +396,57 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return path;
         }
+
+        public static List<int> BellmanFord(int depart, int arrivee, int[,] matriceUsers)
+{
+    int taille = matriceUsers.GetLength(0);
+    List<int> result = new List<int>();
+    int[] dist = new int[taille];
+    int[] precedent = new int[taille];
+    for (int i = 0; i < taille; i++)
+    {
+        dist[i] = int.MaxValue;
+        precedent[i] = -1;
+    }
+    dist[depart] = 0;
+
+    for (int i = 0; i < taille-1; i++)
+    {
+        for (int ii = 0; ii < taille; ii++)
+        {
+            for (int iii = 0; iii < taille; iii++)
+            {
+                if (matriceUsers[ii, iii] != 0 && dist[ii] != int.MaxValue && dist[ii] + matriceUsers[ii, iii] < dist[iii])
+                {
+                    dist[iii] = dist[ii] + matriceUsers[ii, iii];
+                    precedent[iii] = ii;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < taille; i++)
+    {
+        for (int ii = 0; ii < taille; ii++)
+        {
+            if (matriceUsers[i, ii] != 0 && dist[i] !=int.MaxValue && dist[i] +matriceUsers[i, ii] < dist[ii])
+            {
+                throw new Exception("Le graphe contient un cycle de poids négatif.");
+            }
+        }
+    }
+    
+    if (dist[arrivee] == int.MaxValue)
+        return result;
+
+    for (int i = arrivee; i != -1; i = precedent[i])
+    {
+        result.Insert(0, i);
+    }
+
+    return result;
+}
+        
         static void Main(string[] args)
         {
             /*string chemin = "soc-karate.mtx";
