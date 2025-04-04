@@ -14,7 +14,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
 {
     public class Program
     {
-        /*public static int[,] creationMatrice(string chemin)
+        public static int[,] creationMatriceMtx(string chemin)
         {
 
             // création d'une matrice d'adjacence à partir d'un fichier de type .mtx
@@ -77,6 +77,20 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return matrice;
         }
+
+        public static int[,] creationMatriceCSV(Graphe graphe)
+        {
+            int[,] matriceUsers = new int[graphe.AllNodes.Count, graphe.AllNodes.Count];
+        
+            for(int i = 0;i < graphe.AllLinks.Count; i++)
+            {
+                matriceUsers[graphe.AllLinks[i].startingNode, graphe.AllLinks[i].endingNode] = graphe.AllLinks[i].tripValue;
+            }
+        
+            return matriceUsers;
+        }
+
+        
         public static Dictionary<int, List<int>> creationListeAdjacence(string chemin)
         {
             var adjacencyList = new Dictionary<int, List<int>>();
@@ -205,7 +219,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
             }
             return c;
         }
-        /*static void GenererImageGraphe(int[,] matrice)
+        static void GenererImageGraphe(int[,] matrice)
         {
 
             string cheminDot = "graph.dot";
@@ -334,7 +348,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS
                 }
             }
             return false;
-        }*/
+        }
 
         public static List<int> Dijkstra(int depart, int arrivee, int[,] matriceUsers)
         {
