@@ -1,5 +1,4 @@
-using KarateGraph;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -9,24 +8,19 @@ using Graphviz4Net.Graphs;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
 using System.Reflection.PortableExecutable;
-using KarateGraphe;
 using System.ComponentModel;
-
-namespace KarateGraphe
+using static Org.BouncyCastle.Asn1.Cmp.Challenge;
+using System.Text.Json;
+namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 {
     public class Program
     {
         public static int[,] creationMatriceMtx(string chemin)
         {
-
             // création d'une matrice d'adjacence à partir d'un fichier de type .mtx
-
-            int[,] matriceUsers = null;
-
+            int[,]? matriceUsers = null;
             StreamReader lecteur = new(chemin);
-            string ligne = "";
-            ligne = lecteur.ReadLine();
-
+            string? ligne = lecteur.ReadLine();
             string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
 
             if (header[2] == "coordinate") // on vérfie que le format est coordinate
@@ -47,7 +41,7 @@ namespace KarateGraphe
             }
             return matriceUsers;
         }
-        public static int[,] RemplissageMatrice(int[,] matrice, string ligne, StreamReader fichier)
+        public static int[,] RemplissageMatrice(int[,] matrice, string? ligne, StreamReader fichier)
         {
             bool symetric = false;
             string[] header = ligne.Split(" ");
@@ -124,9 +118,7 @@ namespace KarateGraphe
             int noeuds = 0;
 
             StreamReader lecteur = new(chemin);
-            string ligne = "";
-            ligne = lecteur.ReadLine();
-
+            string? ligne = lecteur.ReadLine();
             string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
 
             if (header[2] == "coordinate") // on vérfie que le format est coordinate
@@ -212,9 +204,9 @@ namespace KarateGraphe
             {
                 if (matrice[sommet, i] == 1 && !visite[i])
                 {
-                    pile.add(i);
+                    pile.Add(i);
                     c = DFS(i, matrice, visite, pile, c, affichage); // appel récursif (on incrémente le compteur, il va servir pour estConnexe
-                    pile.remove();
+                    pile.Remove();
                 }
             }
             return c;
@@ -496,9 +488,9 @@ namespace KarateGraphe
 
             return path;
         }
-        public static void livraison(Graphe graphe)
+        public static void Livraison(Graphe graphe)
         {
-            
+
             List<Noeud> listeStations = new List<Noeud>();
             int arrivee = 0;
             int depart = 0;
@@ -515,7 +507,7 @@ namespace KarateGraphe
                 Console.WriteLine("choix de l'adresse de départ : entrez numéro de la ligne (entre 1 et 14) :");
                 numLigne = Convert.ToInt32(Console.ReadLine());
             }
-            
+
             for (int i = 0; i < graphe.AllNodes.Count; i++)
             {
                 if (graphe.AllNodes[i].libelleLigne == numLigne)
@@ -563,7 +555,7 @@ namespace KarateGraphe
                 if (graphe.AllNodes[i].NodeID == numStation)
                 {
                     arrivee = graphe.AllNodes[i].NodeID;
-                    stationArrivee  = graphe.AllNodes[i].libelleStation;
+                    stationArrivee = graphe.AllNodes[i].libelleStation;
                     Console.WriteLine("station de livraison : " + graphe.AllNodes[i].libelleStation);
                 }
             }
@@ -572,10 +564,10 @@ namespace KarateGraphe
             Console.WriteLine();
             int[,] matriceMetro = creationMatriceCSV(graphe);
             GenererImageGraphe(matriceMetro);
-            List<int> cheminLePLusCourt =  Dijkstra(depart, arrivee, matriceMetro);
+            List<int> cheminLePLusCourt = Dijkstra(depart, arrivee, matriceMetro);
 
             Console.WriteLine("le chemin le plus court entre la station " + stationDepart + " et la station " + stationArrivee + " est : ");
-            for(int i  = 0; i< cheminLePLusCourt.Count; i++)
+            for (int i = 0; i < cheminLePLusCourt.Count; i++)
             {
                 Console.WriteLine("Station " + i + " : " + cheminLePLusCourt[i]);
             }
@@ -585,11 +577,8 @@ namespace KarateGraphe
 
         static void Main(string[] args)
         {
-                      
-            
-            string mdp = "8Q88445Q";
-
-            string PathWayToDatabase = "server=localhost;user=root;password="+mdp+";database=LivInParis;";
+            string mdp = "root";
+            string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=LivInParis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
             {
                 try
@@ -597,26 +586,74 @@ namespace KarateGraphe
                     Connection.Open();
                     Console.WriteLine("Database LivInParis connectée.");
                     System.Threading.Thread.Sleep(3000);
-                    MainMenu(Connection);
+                    UserMenu(Connection);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
-            static void MainMenu(MySqlConnection Connection)
+            static string CoordonneesParis()
+            {
+                Random Rand = new Random();
+                double minLat = 48.8156;
+                double maxLat = 48.9021;
+                double minLon = 2.2242;
+                double maxLon = 2.4699;
+                double lat = Rand.NextDouble() * (maxLat - minLat) + minLat;
+                double lon = Rand.NextDouble() * (maxLon - minLon) + minLon;
+                return $"POINT({lon} {lat})";
+            }
+            static void UserMenu(MySqlConnection Connection)
             {
                 bool exit = false;
                 while (!exit)
                 {
                     Console.Clear();
-                    Console.WriteLine("=== Menu Principal ===");
+                    Console.WriteLine("=== Choix Connexion ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Administrateur");
+                    Console.WriteLine("2. Client");
+                    Console.WriteLine("3. Cuisinier");
+                    Console.WriteLine("0. Quitter");
+                    Console.Write("Choisissez une option : ");
+                    string mainChoice = Console.ReadLine();
+
+                    switch (mainChoice)
+                    {
+                        case "1":
+                            MainMenuADMIN(Connection);
+                            break;
+                        case "2":
+                            MainMenuCLIENT(Connection);
+                            break;
+                        case "3":
+                            MainMenuCUISINIER(Connection);
+                            break;
+                        case "0":
+                            exit = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide. Appuyez sur une touche pour réessayer...");
+                            Console.ReadKey();
+                            break;
+                    }
+                }
+            }
+            static void MainMenuADMIN(MySqlConnection Connection)
+            {
+                bool exit = false;
+                while (!exit)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Principal (ADMINISTRATEUR) ===");
                     Console.WriteLine();
                     Console.WriteLine("1. Client");
                     Console.WriteLine("2. Cuisinier");
                     Console.WriteLine("3. Commandes");
                     Console.WriteLine("4. Statistiques");
                     Console.WriteLine("5. Autres");
+                    Console.WriteLine("6. Exports BDD");
                     Console.WriteLine("0. Quitter");
                     Console.Write("Choisissez une option : ");
                     string mainChoice = Console.ReadLine();
@@ -638,6 +675,9 @@ namespace KarateGraphe
                         case "5":
                             AutresMenu(Connection);
                             break;
+                        case "6":
+                            ExportMenu(Connection);
+                            break;
                         case "0":
                             exit = true;
                             break;
@@ -645,6 +685,84 @@ namespace KarateGraphe
                             Console.WriteLine("Option invalide. Appuyez sur une touche pour réessayer...");
                             Console.ReadKey();
                             break;
+                    }
+                }
+            }
+            static void MainMenuCLIENT(MySqlConnection Connection)
+            {
+                bool exit = false;
+                while (!exit)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Principal (CLIENT) ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Passer commande");
+                    Console.WriteLine("2. Voir commande");
+                    Console.WriteLine("0. Quitter");
+                    Console.Write("Choisissez une option : ");
+                    string mainChoice = Console.ReadLine();
+
+                    switch (mainChoice)
+                    {
+                        case "1":
+                            AddCommande(Connection);
+                            break;
+                        case "2":
+                            ViewCommande(Connection);
+                            break;
+                        case "0":
+                            exit = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide. Appuyez sur une touche pour réessayer...");
+                            Console.ReadKey();
+                            break;
+                    }
+                    if (!exit)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            static void MainMenuCUISINIER(MySqlConnection Connection)
+            {
+                bool exit = false;
+                while (!exit)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Principal (CUISINIER) ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Chiffre d'affaires");
+                    Console.WriteLine("2. Meilleurs plats");
+                    Console.WriteLine("3. Voir commande");
+                    Console.WriteLine("0. Quitter");
+                    Console.Write("Choisissez une option : ");
+                    string mainChoice = Console.ReadLine();
+
+                    switch (mainChoice)
+                    {
+                        case "1":
+                            CACuisiniers(Connection);
+                            break;
+                        case "2":
+                            BestPlats(Connection);
+                            break;
+                        case "3":
+                            ViewCommande(Connection);
+                            break;
+                        case "0":
+                            exit = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide. Appuyez sur une touche pour réessayer...");
+                            Console.ReadKey();
+                            break;
+                    }
+                    if (!exit)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
                     }
                 }
             }
@@ -700,10 +818,7 @@ namespace KarateGraphe
                 string prenom = Console.ReadLine();
                 Console.Write("Nom : ");
                 string nom = Console.ReadLine();
-                Console.Write("Adresse : ");
-                string adresse = Console.ReadLine();
-                Console.Write("Code postal : ");
-                string code_postal = Console.ReadLine();
+                string positionGeo = CoordonneesParis();
                 Console.Write("Email : ");
                 string email = Console.ReadLine();
                 Console.Write("Mot de passe : ");
@@ -717,18 +832,16 @@ namespace KarateGraphe
                 string type_client = type_client_input == "p" ? "Particulier" : type_client_input == "e" ? "Entreprise" : null;
                 try
                 {
-                    string Instruction = "INSERT INTO Utilisateur (prenom, nom, adresse, code_postal, email, mdp, est_client, est_cuisinier, type_client) " + "VALUES (@prenom, @nom, @adresse, @codePostal, @email, @mdp, @est_client, @est_cuisinier, @type_client);";
+                    string Instruction = "INSERT INTO Utilisateur (prenom, nom, coordonnees_geographiques, email, mdp, est_client, est_cuisinier, type_client) " + "VALUES (@prenom, @nom, ST_GeomFromText(@coordonnees_geographiques), @email, @mdp, @est_client, @est_cuisinier, @type_client);";
                     MySqlCommand Command = new MySqlCommand(Instruction, Connection);
                     Command.Parameters.AddWithValue("@prenom", prenom);
                     Command.Parameters.AddWithValue("@nom", nom);
-                    Command.Parameters.AddWithValue("@adresse", adresse);
-                    Command.Parameters.AddWithValue("@codePostal", code_postal);
+                    Command.Parameters.AddWithValue("@coordonnees_geographiques", positionGeo);
                     Command.Parameters.AddWithValue("@email", email);
                     Command.Parameters.AddWithValue("@mdp", mdp);
                     Command.Parameters.AddWithValue("@est_client", est_client);
                     Command.Parameters.AddWithValue("@est_cuisinier", est_cuisinier);
                     Command.Parameters.AddWithValue("@type_client", type_client);
-
                     int rowsAffected = Command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
@@ -756,10 +869,7 @@ namespace KarateGraphe
                     string prenom = Console.ReadLine();
                     Console.Write("Nouveau nom : ");
                     string nom = Console.ReadLine();
-                    Console.Write("Nouvelle adresse : ");
-                    string adresse = Console.ReadLine();
-                    Console.Write("Nouveau code postal : ");
-                    string code_postal = Console.ReadLine();
+                    string positionGeo = CoordonneesParis();
                     Console.Write("Nouvel email : ");
                     string email = Console.ReadLine();
                     Console.Write("Nouveau mot de passe : ");
@@ -771,25 +881,30 @@ namespace KarateGraphe
                     Console.Write("Particulier ou Entreprise ? (p/e) : ");
                     string type_client_input = Console.ReadLine().Trim().ToLower();
                     string type_client = type_client_input == "p" ? "Particulier" : type_client_input == "e" ? "Entreprise" : null;
+                    try
+                    {
+                        string Instruction = "UPDATE Utilisateur SET prenom = @prenom, nom = @nom, coordonnees_geographiques = ST_GeomFromText(@coordonnees_geographiques), email = @email, mdp = @mdp, est_client = @est_client, est_cuisinier = @est_cuisinier, type_client = @type_client WHERE id_utilisateur = @id;";
+                        MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                        Command.Parameters.AddWithValue("@prenom", prenom);
+                        Command.Parameters.AddWithValue("@nom", nom);
+                        Command.Parameters.AddWithValue("@coordonnees_geographiques", positionGeo);
+                        Command.Parameters.AddWithValue("@email", email);
+                        Command.Parameters.AddWithValue("@mdp", mdp);
+                        Command.Parameters.AddWithValue("@est_client", est_client);
+                        Command.Parameters.AddWithValue("@est_cuisinier", est_cuisinier);
+                        Command.Parameters.AddWithValue("@type_client", type_client);
+                        Command.Parameters.AddWithValue("@id", id_utilisateur);
 
-                    string Instruction = "UPDATE Utilisateur SET prenom = @prenom, nom = @nom, adresse = @adresse, code_postal = @codePostal, email = @email, mdp = @mdp, est_client = @est_client, est_cuisinier = @est_cuisinier, type_client = @type_client WHERE id_utilisateur = @id;";
-                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
-                    Command.Parameters.AddWithValue("@prenom", prenom);
-                    Command.Parameters.AddWithValue("@nom", nom);
-                    Command.Parameters.AddWithValue("@adresse", adresse);
-                    Command.Parameters.AddWithValue("@codePostal", code_postal);
-                    Command.Parameters.AddWithValue("@email", email);
-                    Command.Parameters.AddWithValue("@mdp", mdp);
-                    Command.Parameters.AddWithValue("@est_client", est_client);
-                    Command.Parameters.AddWithValue("@est_cuisinier", est_cuisinier);
-                    Command.Parameters.AddWithValue("@type_client", type_client);
-                    Command.Parameters.AddWithValue("@id", id_utilisateur);
-
-                    int rowsAffected = Command.ExecuteNonQuery();
-                    if (rowsAffected > 0)
-                        Console.WriteLine("Client modifié avec succès !");
-                    else
-                        Console.WriteLine("Aucun client trouvé avec cet ID.");
+                        int rowsAffected = Command.ExecuteNonQuery();
+                        if (rowsAffected > 0)
+                            Console.WriteLine("Client modifié avec succès !");
+                        else
+                            Console.WriteLine("Aucun client trouvé avec cet ID.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Erreur : " + ex.Message);
+                    }
                 }
                 else
                 {
@@ -840,7 +955,7 @@ namespace KarateGraphe
                 Console.Clear();
                 Console.WriteLine("=== Liste des Clients par Nom, Prénom (ordre alphabétique) ===");
                 Console.WriteLine();
-                string Instruction = "SELECT id_utilisateur, prenom, nom, adresse, code_postal, email FROM Utilisateur WHERE est_client = TRUE ORDER BY nom ASC, prenom ASC;";
+                string Instruction = "SELECT id_utilisateur, prenom, nom, ST_AsText(coordonnees_geographiques) AS coordonnees, email FROM Utilisateur WHERE est_client = TRUE ORDER BY nom ASC, prenom ASC;";
                 MySqlCommand Command = new MySqlCommand(Instruction, Connection);
                 MySqlDataReader reader = Command.ExecuteReader();
                 while (reader.Read())
@@ -848,49 +963,14 @@ namespace KarateGraphe
                     int id = reader.GetInt32(0);
                     string prenom = reader.GetString(1);
                     string nom = reader.GetString(2);
-                    string adresse = reader.GetString(3);
-                    string codePostal = reader.GetString(4);
-                    string email = reader.GetString(5);
-                    Console.WriteLine($"ID: {id}, Nom: {nom}, Prénom: {prenom}, Adresse: {adresse}, Code Postal: {codePostal}, Email: {email}");
+                    string coordonnees = reader.GetString(3);
+                    string email = reader.GetString(4);
+                    Console.WriteLine($"ID: {id}, Nom: {nom}, Prénom: {prenom}, Coordonnées: {coordonnees}, Email: {email}");
                 }
                 reader.Close();
                 Console.WriteLine("Appuyez sur une touche pour continuer...");
                 Console.ReadKey();
                 Console.Clear();
-                Console.WriteLine("=== Liste des Clients par Adresse (ordre alphabétique) ===");
-                Console.WriteLine();
-                Instruction = "SELECT id_utilisateur, prenom, nom, adresse, code_postal, email FROM Utilisateur WHERE est_client = TRUE ORDER BY adresse ASC;";
-                Command = new MySqlCommand(Instruction, Connection);
-                reader = Command.ExecuteReader();
-                while (reader.Read())
-                {
-                    int id = reader.GetInt32(0);
-                    string prenom = reader.GetString(1);
-                    string nom = reader.GetString(2);
-                    string adresse = reader.GetString(3);
-                    string codePostal = reader.GetString(4);
-                    string email = reader.GetString(5);
-                    Console.WriteLine($"ID: {id}, Nom: {nom}, Prénom: {prenom}, Adresse: {adresse}, Code Postal: {codePostal}, Email: {email}");
-                }
-                reader.Close();
-                Console.WriteLine("Appuyez sur une touche pour continuer...");
-                Console.ReadKey();
-                Console.Clear();
-                Console.WriteLine("=== Liste des Meilleurs Clients ===");
-                Console.WriteLine();
-                Instruction = "SELECT u.id_utilisateur, u.prenom, u.nom, COUNT(c.id_commande) AS nb_commandes, SUM(c.montant_total) AS total_achats FROM Utilisateur u JOIN Commande c ON u.id_utilisateur = c.id_client WHERE u.est_client = TRUE GROUP BY u.id_utilisateur, u.prenom, u.nom ORDER BY total_achats DESC;";
-                Command = new MySqlCommand(Instruction, Connection);
-                reader = Command.ExecuteReader();
-                while (reader.Read())
-                {
-                    int id = reader.GetInt32(0);
-                    string prenom = reader.GetString(1);
-                    string nom = reader.GetString(2);
-                    int NbOrders = reader.GetInt32(3);
-                    decimal TotalOrders = reader.GetDecimal(4);
-                    Console.WriteLine($"ID: {id}, Nom: {nom}, Prénom: {prenom}, Nombre de commandes: {NbOrders}, Total: {TotalOrders}EUR");
-                }
-                reader.Close();
             }
             static void CuisinierMenu(MySqlConnection Connection)
             {
@@ -1202,12 +1282,12 @@ namespace KarateGraphe
                 Console.WriteLine();
                 try
                 {
-                    string Instruction = "SELECT nom_plat, prix_par_personne, nationalite, regime_alimentaire FROM Plat WHERE regime_alimentaire LIKE '%Végétarien%';";
+                    string Instruction = "SELECT nom_plat, prix_plat, nationalite, regime_alimentaire FROM Plat WHERE regime_alimentaire LIKE '%Végétarien%';";
                     MySqlCommand Command = new MySqlCommand(Instruction, Connection);
                     MySqlDataReader reader = Command.ExecuteReader();
                     while (reader.Read())
                     {
-                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Prix: {reader["prix_par_personne"]}, Nationalité: {reader["nationalite"]}, Caractéristiques: {reader["regime_alimentaire"]}");
+                        Console.WriteLine($"Nom du plat: {reader["nom_plat"]}, Prix: {reader["prix_plat"]}, Nationalité: {reader["nationalite"]}, Caractéristiques: {reader["regime_alimentaire"]}");
                     }
                     reader.Close();
                 }
@@ -1366,12 +1446,39 @@ namespace KarateGraphe
                     Console.WriteLine("Veuillez créer un nouvel utilisateur client.");
                     return;
                 }
+                Console.Clear();
+                Instruction = "SELECT ST_X(coordonnees_geographiques), ST_Y(coordonnees_geographiques) FROM Utilisateur WHERE id_utilisateur = @id_client;";
+                Command = new MySqlCommand(Instruction, Connection);
+                Command.Parameters.AddWithValue("@id_client", id_client);
+                double latitude = 0;
+                double longitude = 0;
+                using (MySqlDataReader geoReader = Command.ExecuteReader())
+                {
+                    if (geoReader.Read())
+                    {
+                        latitude = geoReader.GetDouble(0);
+                        longitude = geoReader.GetDouble(1);
+                    }
+                }
+                Console.WriteLine($"Position géographique du client : Latitude = {latitude}, Longitude = {longitude}");
+                Console.WriteLine("=== Carte des Plats ===");
+                string InstructionCarte = "SELECT id_plat, nom_plat, prix_plat FROM Plat ORDER BY id_plat;";
+                MySqlCommand CommandCarte = new MySqlCommand(InstructionCarte, Connection);
+                using (MySqlDataReader readerCarte = CommandCarte.ExecuteReader())
+                {
+                    while (readerCarte.Read())
+                    {
+                        int idPlat = readerCarte.GetInt32("id_plat");
+                        string nomPlat = readerCarte.GetString("nom_plat");
+                        decimal prix = readerCarte.GetDecimal("prix_plat");
+                        Console.WriteLine($"ID: {idPlat}, Nom: {nomPlat}, Prix: {prix} EUR");
+                    }
+                }
                 List<(int platId, int quantity)> OrderLines = new List<(int, int)>();
                 decimal MontantTotal = 0m;
-
-                while (1 == 1)///Oui c'est pas très propre et ça fait un peu bricolage mais je ne voyais pas comment faire sinon vu qu'avec un booléen si j'utilise pas le break le programme va continuer et essayer d'ajouter un plat ID0 qui n'existe pas.
+                while (true)
                 {
-                    Console.Write("Entrez l'ID du plat à ajouter (0 pour terminer) : ");
+                    Console.Write("\nEntrez l'ID du plat à ajouter (0 pour terminer) : ");
                     if (!int.TryParse(Console.ReadLine(), out int id_plat))
                     {
                         Console.WriteLine("ID de plat invalide.");
@@ -1381,7 +1488,7 @@ namespace KarateGraphe
                     {
                         break;
                     }
-                    string InstructionPlat = "SELECT nom_plat, prix_par_personne FROM Plat WHERE id_plat = @id_plat;";
+                    string InstructionPlat = "SELECT nom_plat, prix_plat FROM Plat WHERE id_plat = @id_plat;";
                     MySqlCommand CommandPlat = new MySqlCommand(InstructionPlat, Connection);
                     CommandPlat.Parameters.AddWithValue("@id_plat", id_plat);
                     using (MySqlDataReader platReader = CommandPlat.ExecuteReader())
@@ -1389,13 +1496,13 @@ namespace KarateGraphe
                         if (platReader.Read())
                         {
                             string NomPlat = platReader.GetString("nom_plat");
-                            decimal prix = platReader.GetDecimal("prix_par_personne");
+                            decimal prix = platReader.GetDecimal("prix_plat");
                             Console.WriteLine($"Plat sélectionné: {NomPlat}, Prix: {prix}EUR");
                             Console.Write("Entrez la quantité: ");
                             if (!int.TryParse(Console.ReadLine(), out int quantite) || quantite <= 0)
                             {
                                 Console.WriteLine("Quantité invalide. Ce plat ne sera pas ajouté.");
-                                continue;///Sinon ça plante donc je reviens directement au début du while en ignorant le code qui suit.
+                                continue;
                             }
                             Console.WriteLine($"Vous avez sélectionné {quantite}X {NomPlat}.");
                             OrderLines.Add((id_plat, quantite));
@@ -1433,16 +1540,14 @@ namespace KarateGraphe
                             InstructionLigne.Parameters.AddWithValue("@id_plat", line.platId);
                             InstructionLigne.Parameters.AddWithValue("@quantite", line.quantity);
                             InstructionLigne.ExecuteNonQuery();
-
-                            
                         }
-                        ///creation graphe avec le fichier Excel :
+                        // Appel de livraison et génération de graphe
                         Graphe metro = new Graphe("MetroParisNoeuds.csv", "MetroParisArcs.csv");
-                        livraison(metro);
+                        Livraison(metro);
                     }
                     else
                     {
-                        Console.WriteLine("Erreur lors de l'insertion des ligne de la commande.");
+                        Console.WriteLine("Erreur lors de l'insertion de la commande.");
                     }
                 }
                 catch (Exception ex)
@@ -1450,7 +1555,7 @@ namespace KarateGraphe
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
-            static void EditCommande(MySqlConnection connection)
+            static void EditCommande(MySqlConnection Connection)
             {
                 Console.Clear();
                 Console.Write("Entrez l'ID de la commande à modifier : ");
@@ -1459,7 +1564,7 @@ namespace KarateGraphe
                     try
                     {
                         string Instruction = "SELECT id_client, date_commande FROM Commande WHERE id_commande = @idCommande;";
-                        MySqlCommand CommandCommande = new MySqlCommand(Instruction, connection);
+                        MySqlCommand CommandCommande = new MySqlCommand(Instruction, Connection);
                         CommandCommande.Parameters.AddWithValue("@idCommande", idCommande);
                         MySqlDataReader reader = CommandCommande.ExecuteReader();
                         if (!reader.Read())
@@ -1469,18 +1574,32 @@ namespace KarateGraphe
                             return;
                         }
                         int idClient = Convert.ToInt32(reader["id_client"]);
-                        DateTime DateCommande = Convert.ToDateTime(reader["date_commande"]);
+                        DateTime DateCommande = DateTime.Now;
                         reader.Close();
                         Console.WriteLine($"Commande trouvée : Client ID: {idClient}, Date: {DateCommande}");
-
-                        DateTime NewDateEdit = DateTime.Now;
                         string DeleteOldInstruction = "DELETE FROM LigneCommande WHERE id_commande = @idCommande;";
-                        MySqlCommand DeleteOldCommand = new MySqlCommand(DeleteOldInstruction, connection);
+                        MySqlCommand DeleteOldCommand = new MySqlCommand(DeleteOldInstruction, Connection);
                         DeleteOldCommand.Parameters.AddWithValue("@idCommande", idCommande);
                         DeleteOldCommand.ExecuteNonQuery();
+                        Console.Clear();
+                        Console.WriteLine("=== Carte des Plats ===");
+                        string InstructionCarte = "SELECT id_plat, nom_plat, prix_plat FROM Plat ORDER BY id_plat;";
+                        MySqlCommand CommandCarte = new MySqlCommand(InstructionCarte, Connection);
+                        using (MySqlDataReader readerCarte = CommandCarte.ExecuteReader())
+                        {
+                            while (readerCarte.Read())
+                            {
+                                int idPlat = readerCarte.GetInt32("id_plat");
+                                string nomPlat = readerCarte.GetString("nom_plat");
+                                decimal prixPlat = readerCarte.GetDecimal("prix_plat");
+                                Console.WriteLine($"ID: {idPlat}, Nom: {nomPlat}, Prix: {prixPlat} EUR");
+                            }
+                        }
+                        Console.WriteLine("=== Fin de la carte ===");
+                        Console.WriteLine();
                         List<(int idPlat, int quantite)> NouvelleCommande = new List<(int, int)>();
                         decimal MontantTotal = 0m;
-                        while (1 == 1)///Le retour
+                        while (true)
                         {
                             Console.Write("Entrez l'ID du plat (ou 0 pour terminer) : ");
                             if (!int.TryParse(Console.ReadLine(), out int idPlat) || idPlat == 0)
@@ -1493,40 +1612,41 @@ namespace KarateGraphe
                                 Console.WriteLine("Quantité invalide.");
                                 continue;
                             }
-                            string InstructionPlat = "SELECT nom_plat, prix_par_personne FROM Plat WHERE id_plat = @idPlat;";
-                            MySqlCommand CommandPlat = new MySqlCommand(InstructionPlat, connection);
+                            string InstructionPlat = "SELECT nom_plat, prix_plat FROM Plat WHERE id_plat = @idPlat;";
+                            MySqlCommand CommandPlat = new MySqlCommand(InstructionPlat, Connection);
                             CommandPlat.Parameters.AddWithValue("@idPlat", idPlat);
-                            MySqlDataReader PlatReader = CommandPlat.ExecuteReader();
-                            if (PlatReader.Read())
+                            using (MySqlDataReader PlatReader = CommandPlat.ExecuteReader())
                             {
-                                string NomPlat = PlatReader["nom_plat"].ToString();
-                                decimal prix = Convert.ToDecimal(PlatReader["prix_par_personne"]);
-                                MontantTotal += prix * quantite;
-                                NouvelleCommande.Add((idPlat, quantite));
-                                Console.WriteLine($"Ajouté : {quantite}X {NomPlat}, {prix * quantite}EUR");
+                                if (PlatReader.Read())
+                                {
+                                    string NomPlat = PlatReader["nom_plat"].ToString();
+                                    decimal prix = Convert.ToDecimal(PlatReader["prix_plat"]);
+                                    MontantTotal += prix * quantite;
+                                    NouvelleCommande.Add((idPlat, quantite));
+                                    Console.WriteLine($"Ajouté : {quantite}X {NomPlat}, Total: {prix * quantite} EUR");
+                                }
+                                else
+                                {
+                                    Console.WriteLine("ID du plat invalide.");
+                                }
                             }
-                            else
-                            {
-                                Console.WriteLine("ID du plat invalide.");
-                            }
-                            PlatReader.Close();
                         }
                         foreach (var (idPlat, quantite) in NouvelleCommande)
                         {
                             string NewLineOrder = "INSERT INTO LigneCommande (id_commande, id_plat, quantite) VALUES (@idCommande, @idPlat, @quantite);";
-                            MySqlCommand InstructionOrder = new MySqlCommand(NewLineOrder, connection);
+                            MySqlCommand InstructionOrder = new MySqlCommand(NewLineOrder, Connection);
                             InstructionOrder.Parameters.AddWithValue("@idCommande", idCommande);
                             InstructionOrder.Parameters.AddWithValue("@idPlat", idPlat);
                             InstructionOrder.Parameters.AddWithValue("@quantite", quantite);
                             InstructionOrder.ExecuteNonQuery();
                         }
                         string updateCommandeQuery = "UPDATE Commande SET date_commande = @newDate, montant_total = @montantTotal WHERE id_commande = @idCommande;";
-                        MySqlCommand updateCmd = new MySqlCommand(updateCommandeQuery, connection);
+                        MySqlCommand updateCmd = new MySqlCommand(updateCommandeQuery, Connection);
                         updateCmd.Parameters.AddWithValue("@newDate", DateCommande);
                         updateCmd.Parameters.AddWithValue("@montantTotal", MontantTotal);
                         updateCmd.Parameters.AddWithValue("@idCommande", idCommande);
                         updateCmd.ExecuteNonQuery();
-                        Console.WriteLine($"Commande mise à jour avec succès ! Nouveau total : {MontantTotal}EUR");
+                        Console.WriteLine($"Commande mise à jour avec succès ! Nouveau total : {MontantTotal} EUR");
                     }
                     catch (Exception ex)
                     {
@@ -1562,11 +1682,11 @@ namespace KarateGraphe
                         DateTime DateCommande = Convert.ToDateTime(Reader["date_commande"]);
                         decimal MontantTotal = Convert.ToDecimal(Reader["montant_total"]);
                         Reader.Close();
-                        Console.WriteLine($"Détails de la commande {IDCommande}");
+                        Console.WriteLine($"Détails de la commande {IDCommande}.\n");
                         Console.WriteLine($"Client: {Prenom} {Nom} (ID: {IDClient})");
                         Console.WriteLine($"Date: {DateCommande}");
                         Console.WriteLine($"Montant total: {MontantTotal}EUR");
-                        string InstructionContenuCommande = "SELECT p.nom_plat, p.prix_par_personne, lc.quantite FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat WHERE lc.id_commande = @idCommande;";
+                        string InstructionContenuCommande = "SELECT p.nom_plat, p.prix_plat, lc.quantite FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat WHERE lc.id_commande = @idCommande;";
                         MySqlCommand CommandePlat = new MySqlCommand(InstructionContenuCommande, Connection);
                         CommandePlat.Parameters.AddWithValue("@idCommande", IDCommande);
                         MySqlDataReader ReaderPlats = CommandePlat.ExecuteReader();
@@ -1574,7 +1694,7 @@ namespace KarateGraphe
                         while (ReaderPlats.Read())
                         {
                             string NomPlat = ReaderPlats["nom_plat"].ToString();
-                            decimal prix = Convert.ToDecimal(ReaderPlats["prix_par_personne"]);
+                            decimal prix = Convert.ToDecimal(ReaderPlats["prix_plat"]);
                             int quantite = Convert.ToInt32(ReaderPlats["quantite"]);
                             Console.WriteLine($"- {quantite}X {NomPlat}, {prix}EUR/unité, {prix * quantite}EUR");
                         }
@@ -1588,6 +1708,86 @@ namespace KarateGraphe
                 else
                 {
                     Console.WriteLine("ID invalide.");
+                }
+            }
+            static void ExportMenu(MySqlConnection Connection)
+            {
+                bool back = false;
+                while (!back)
+                {
+                    Console.Clear();
+                    Console.WriteLine("=== Menu Export ===");
+                    Console.WriteLine();
+                    Console.WriteLine("1. Exporter la BDD en Json");
+                    Console.WriteLine("2. Exporter la BDD en XML");
+                    Console.WriteLine("0. Retour au menu principal");
+                    Console.Write("Choisissez une option : ");
+                    string choice = Console.ReadLine();
+                    switch (choice)
+                    {
+                        case "1":
+                            JsonExport(Connection, "JsonExportBDD.json");
+                            break;
+                        case "2":
+                            Console.WriteLine("Not ready yet...");
+                            break;
+                        case "0":
+                            back = true;
+                            break;
+                        default:
+                            Console.WriteLine("Option invalide.");
+                            break;
+                    }
+                    if (!back)
+                    {
+                        Console.WriteLine("Appuyez sur une touche pour continuer...");
+                        Console.ReadKey();
+                    }
+                }
+            }
+            static void JsonExport(MySqlConnection Connection, string FileName)
+            {
+                Dictionary<string, List<Dictionary<string, object>>> AllBDD = new Dictionary<string, List<Dictionary<string, object>>>();
+                try
+                {
+                    List<string> TablesNames = new List<string>();
+                    string Instruction = "SHOW TABLES;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        TablesNames.Add(reader.GetString(0));
+                    }
+                    reader.Close();
+                    foreach (string TableByTable in TablesNames)
+                    {
+                        List<Dictionary<string, object>> lignes = new List<Dictionary<string, object>>();
+                        string InstructionLignes = $"SELECT * FROM {TableByTable};";
+                        MySqlCommand CommandLignes = new MySqlCommand(InstructionLignes, Connection);
+                        MySqlDataReader readerLignes = CommandLignes.ExecuteReader();
+                        while (readerLignes.Read())
+                        {
+                            Dictionary<string, object> ligne = new Dictionary<string, object>();
+                            for (int i = 0; i < readerLignes.FieldCount; i++)
+                            {
+                                string ColonneName = readerLignes.GetName(i);
+                                object valeur = readerLignes.GetValue(i);
+                                ligne[ColonneName] = valeur;
+                            }
+
+                            lignes.Add(ligne);
+                        }
+                        readerLignes.Close();
+                        AllBDD[TableByTable] = lignes;
+                    }
+                    JsonSerializerOptions Identation = new JsonSerializerOptions { WriteIndented = true };
+                    string json = JsonSerializer.Serialize(AllBDD, Identation);
+                    File.WriteAllText(FileName, json);
+                    Console.WriteLine($"Export JSON terminé ! Fichier : {FileName}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
         }
