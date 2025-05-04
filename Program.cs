@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -75,42 +75,41 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int[,] creationMatriceCSV(Graphe graphe)
         {
-            int n = graphe.AllNodes.Count;
-            int[,] matriceAdjacence = new int[n, n];
+            // Récupérer les noeuds valides (ID != 0)
+            var noeudsValid = graphe.AllNodes
+                .Where(n => n.ID != 0)
+                .OrderBy(n => n.ID)
+                .ToList();
 
-            // Initialisation de la matrice avec des valeurs nulles
+            int n = noeudsValid.Count;
+            int[,] matrice = new int[n, n];
+
+            // Création d'un dictionnaire pour accéder rapidement à l'indice de chaque noeud par son ID
+            Dictionary<int, int> idToIndex = new();
             for (int i = 0; i < n; i++)
             {
-                for (int j = 0; j < n; j++)
-                {
-                    matriceAdjacence[i, j] = 0; // Pas de lien par défaut
-                }
+                idToIndex[noeudsValid[i].ID] = i;
             }
 
-            // Remplissage de la matrice avec les liens existants
+            // Remplissage de la matrice
             foreach (var lien in graphe.AllLinks)
             {
-                int depart = lien.startingNode;
-                int arrivee = lien.endingNode;
-                int poids = lien.tripValue;
+                int a = lien.startingNode;
+                int b = lien.endingNode;
 
-                // Recherche des indices correspondants aux ID des noeuds
-                int indexDepart = graphe.AllNodes.FindIndex(node => node.NodeID == depart);
-                int indexArrivee = graphe.AllNodes.FindIndex(node => node.NodeID == arrivee);
+                // Exclure les liens impliquant le noeud 0
+                if (a == 0 || b == 0) continue;
 
-                if (indexDepart != -1 && indexArrivee != -1)
+                if (idToIndex.ContainsKey(a) && idToIndex.ContainsKey(b))
                 {
-                    matriceAdjacence[indexDepart, indexArrivee] = poids;
-
-                    // Si le graphe est non orienté, on ajoute aussi l'arête inverse
-                    if (!lien.orientation)
-                    {
-                        matriceAdjacence[indexArrivee, indexDepart] = poids;
-                    }
+                    int i = idToIndex[a];
+                    int j = idToIndex[b];
+                    matrice[i, j] = lien.tripValue;
+                    matrice[j, i] = lien.tripValue; // graphe non orienté
                 }
             }
 
-            return matriceAdjacence;
+            return matrice;
         }
         public static Dictionary<int, List<int>> creationListeAdjacence(string chemin)
         {
@@ -204,9 +203,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             {
                 if (matrice[sommet, i] == 1 && !visite[i])
                 {
-                    pile.Add(i);
+                    pile.add(i);
                     c = DFS(i, matrice, visite, pile, c, affichage); // appel récursif (on incrémente le compteur, il va servir pour estConnexe
-                    pile.Remove();
+                    pile.remove();
                 }
             }
             return c;
@@ -238,41 +237,100 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
             return c;
         }
-        public static void GenererImageGraphe(int[,] matrice)
+        public static void GenererImageGraphe(Graphe graphe)
         {
-            int n = matrice.GetLength(0);
-            string dotFilePath = "graph.dot";
-            string outputImagePath = "graph.png";
+            StringBuilder dot = new StringBuilder();
+            dot.AppendLine("graph G {");
+            dot.AppendLine("    node [shape=circle, style=filled, fillcolor=white, fontname=\"Arial\"];");
 
-            using (StreamWriter writer = new StreamWriter(dotFilePath))
+            // 1. Affichage des noeuds : ID dans le rond, nom à côté
+            foreach (var node in graphe.AllNodes)
             {
-                writer.WriteLine("digraph G {");
+                if (node.ID == 0) continue; // Ignore le noeud 0
 
-                for (int i = 0; i < n; i++)
-                {
-                    for (int j = 0; j < n; j++)
-                    {
-                        if (matrice[i, j] != 0)
-                        {
-                            writer.WriteLine($"    {i} -> {j} [label=\"{matrice[i, j]}\"];");
-                        }
-                    }
-                }
-
-                writer.WriteLine("}");
+                dot.AppendLine($"    {node.ID} [label=\"{node.ID}\"];");
+                dot.AppendLine($"    label_{node.ID} [shape=none, label=\"{node.libelleStation}\", fontsize=10];");
+                dot.AppendLine($"    {node.ID} -- label_{node.ID} [style=invis];");
             }
 
-            // Générer l'image avec Graphviz
-            Process process = new Process();
-            process.StartInfo.FileName = "dot";  // Assurez-vous que Graphviz est installé et accessible dans PATH
-            process.StartInfo.Arguments = $"-Tpng {dotFilePath} -o {outputImagePath}";
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
+            // 2. Gestion des couleurs par ligne
+            Dictionary<int, string> couleurParLigne = new();
+            string[] palette = { "red", "blue", "green", "orange", "purple", "brown", "cyan", "magenta", "gray", "pink" };
+            int couleurIndex = 0;
 
-            Console.WriteLine($"Graphe généré : {outputImagePath}");
+            HashSet<string> liensTraites = new HashSet<string>();
+
+            foreach (var lien in graphe.AllLinks)
+            {
+                int a = lien.startingNode;
+                int b = lien.endingNode;
+
+                // Ignorer les liens vers ou depuis le noeud 0
+                if (a == 0 || b == 0) continue;
+
+                string key = a < b ? $"{a}-{b}" : $"{b}-{a}";
+
+                if (!liensTraites.Contains(key))
+                {
+                    // On récupère la ligne associée au noeud de départ (suffisant ici)
+                    var noeud = graphe.AllNodes.FirstOrDefault(n => n.ID == a);
+                    if (noeud == null)
+                    {
+                        Console.WriteLine($"Noeud avec ID {a} introuvable pour le lien {a}-{b}, lien ignoré.");
+                        continue;
+                    }
+
+                    if (noeud.libelleLigne.Count == 0)
+                    {
+                        Console.WriteLine($"Noeud {a} n'a pas de ligne associée, lien ignoré.");
+                        continue;
+                    }
+
+                    int ligne = noeud.libelleLigne.First(); // ou autre stratégie si plusieurs lignes
+
+                    // Couleur pour cette ligne
+                    if (!couleurParLigne.ContainsKey(ligne))
+                    {
+                        couleurParLigne[ligne] = palette[couleurIndex % palette.Length];
+                        couleurIndex++;
+                    }
+
+                    string couleur = couleurParLigne[ligne];
+
+                    dot.AppendLine($"    {a} -- {b} [label=\"{lien.tripValue}\", color=\"{couleur}\", fontcolor=\"{couleur}\"];");
+                    liensTraites.Add(key);
+                }
+            }
+
+            dot.AppendLine("}");
+
+            // 3. Écriture fichier .dot
+            string dotPath = "graphe.dot";
+            File.WriteAllText(dotPath, dot.ToString());
+
+            // 4. Génération image PNG avec Graphviz
+            string imagePath = "graphe.png";
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = "dot",
+                Arguments = $"-Tpng {dotPath} -o {imagePath}",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            try
+            {
+                using (Process process = Process.Start(startInfo))
+                {
+                    process.WaitForExit();
+                    Console.WriteLine("Image générée : " + imagePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur : " + ex.Message);
+            }
         }
         public static bool estConnexe(int[,] matrice)
         {
@@ -327,64 +385,77 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
             return false;
         }
-        public static List<int> Dijkstra(int depart, int arrivee, int[,] matriceUsers)
+        public static List<int> Dijkstra(int depart, int arrivee, Graphe graphe)
         {
-            int n = matriceUsers.GetLength(0);
-            int[] distances = new int[n];
-            int[] predecessors = new int[n];
-            bool[] visited = new bool[n];
+            var distances = new Dictionary<int, int>();
+            var precedent = new Dictionary<int, int>();
+            var nonVisites = new HashSet<int>();
 
-            for (int i = 0; i < n; i++)
+            // Initialisation
+            foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
-                distances[i] = int.MaxValue;
-                predecessors[i] = -1;
-                visited[i] = false;
+                distances[noeud.ID] = int.MaxValue;
+                precedent[noeud.ID] = -1;
+                nonVisites.Add(noeud.ID);
             }
-
             distances[depart] = 0;
 
-            for (int count = 0; count < n - 1; count++)
+            while (nonVisites.Count > 0)
             {
-                int u = MinDistance(distances, visited, n);
-                if (u == -1) break;
-                visited[u] = true;
+                // Sélectionne le noeud non visité avec la distance minimale
+                int courant = nonVisites.OrderBy(n => distances[n]).First();
 
-                for (int v = 0; v < n; v++)
+                nonVisites.Remove(courant);
+
+                // Pour tous les voisins connectés à courant via un lien
+                foreach (var lien in graphe.AllLinks)
                 {
-                    if (!visited[v] && matriceUsers[u, v] != 0 && distances[u] != int.MaxValue
-                        && distances[u] + matriceUsers[u, v] < distances[v])
+                    if (lien.stationId == 0) continue;
+
+                    var voisins = new List<int>();
+
+                    if (lien.startingNode == courant && lien.stationId != 0)
+                        voisins.Add(lien.stationId);
+                    if (lien.endingNode == courant && lien.stationId != 0)
+                        voisins.Add(lien.stationId);
+                    if (lien.stationId == courant)
                     {
-                        distances[v] = distances[u] + matriceUsers[u, v];
-                        predecessors[v] = u;
+                        if (lien.startingNode != 0)
+                            voisins.Add(lien.startingNode);
+                        if (lien.endingNode != 0)
+                            voisins.Add(lien.endingNode);
+                    }
+
+                    foreach (int voisin in voisins)
+                    {
+                        if (!nonVisites.Contains(voisin)) continue;
+
+                        int alt = distances[courant] + lien.tripValue;
+                        if (alt < distances[voisin])
+                        {
+                            distances[voisin] = alt;
+                            precedent[voisin] = courant;
+                        }
                     }
                 }
             }
 
-            return chemin(predecessors, arrivee);
-        }
-        private static int MinDistance(int[] distances, bool[] visited, int n)
-        {
-            int min = int.MaxValue, minIndex = -1;
+            // Reconstruction du chemin
+            var chemin = new List<int>();
+            int node = arrivee;
 
-            for (int v = 0; v < n; v++)
+            while (node != -1)
             {
-                if (!visited[v] && distances[v] <= min)
-                {
-                    min = distances[v];
-                    minIndex = v;
-                }
+                chemin.Insert(0, node);
+                node = precedent.ContainsKey(node) ? precedent[node] : -1;
             }
-            return minIndex;
+
+            if (chemin.First() != depart)
+                return new List<int>(); // Aucun chemin trouvé
+
+            return chemin;
         }
-        private static List<int> chemin(int[] predecessors, int arrivee)
-        {
-            List<int> path = new List<int>();
-            for (int i = arrivee; i != -1; i = predecessors[i])
-            {
-                path.Insert(0, i);
-            }
-            return path;
-        }
+
         public static List<int> BellmanFord(int depart, int arrivee, int[,] matriceUsers)
         {
             int taille = matriceUsers.GetLength(0);
@@ -488,7 +559,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             return path;
         }
-        public static void Livraison(Graphe graphe)
+        public static void livraison(Graphe graphe)
         {
 
             List<Noeud> listeStations = new List<Noeud>();
@@ -501,6 +572,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int numLigne = -1;
             int numStation = -1;
 
+            int[,] matriceMetro = creationMatriceCSV(graphe);
+            GenererImageGraphe(graphe);
+
             ///choix adresse de départ
             while (numLigne <= 0 || numLigne > 14)
             {
@@ -510,7 +584,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             for (int i = 0; i < graphe.AllNodes.Count; i++)
             {
-                if (graphe.AllNodes[i].libelleLigne == numLigne)
+                if (graphe.AllNodes[i].libelleLigne.Contains(numLigne))
                 {
                     listeStations.Add(graphe.AllNodes[i]);
                     tempDepart = graphe.AllNodes[i].libelleStation;
@@ -525,7 +599,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {
                     depart = graphe.AllNodes[i].NodeID;
                     stationDepart = graphe.AllNodes[i].libelleStation;
-                    Console.WriteLine("station de départ : " + graphe.AllNodes[i].libelleStation);
+                    Console.WriteLine("station de départ : " + stationDepart);
                 }
             }
 
@@ -540,45 +614,128 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
             for (int i = 0; i < graphe.AllNodes.Count; i++)
             {
-                if (graphe.AllNodes[i].libelleLigne == numLigne)
+
+                if (graphe.AllNodes[i].libelleLigne.Contains(numLigne))
                 {
                     listeStations.Add(graphe.AllNodes[i]);
                     tempArrivee = graphe.AllNodes[i].libelleStation;
                     Console.WriteLine("numéro station : " + graphe.AllNodes[i].NodeID + " : " + tempArrivee);
                 }
 
+
             }
             Console.WriteLine("choix de la station : entrez le numéro de la station : ");
             numStation = Convert.ToInt32(Console.ReadLine());
-            for (int i = 0; i < listeStations.Count; i++)
+            for (int i = 0; i < graphe.AllNodes.Count; i++)
             {
                 if (graphe.AllNodes[i].NodeID == numStation)
                 {
                     arrivee = graphe.AllNodes[i].NodeID;
                     stationArrivee = graphe.AllNodes[i].libelleStation;
-                    Console.WriteLine("station de livraison : " + graphe.AllNodes[i].libelleStation);
+                    Console.WriteLine("station de livraison : " + stationArrivee);
                 }
             }
 
 
             Console.WriteLine();
-            int[,] matriceMetro = creationMatriceCSV(graphe);
-            GenererImageGraphe(matriceMetro);
-            List<int> cheminLePLusCourt = Dijkstra(depart, arrivee, matriceMetro);
+
+            List<int> cheminLePLusCourt = Dijkstra(depart, arrivee, graphe);
 
             Console.WriteLine("le chemin le plus court entre la station " + stationDepart + " et la station " + stationArrivee + " est : ");
+            Console.WriteLine(cheminLePLusCourt.Count);
             for (int i = 0; i < cheminLePLusCourt.Count; i++)
             {
-                Console.WriteLine("Station " + i + " : " + cheminLePLusCourt[i]);
+                
+                Console.WriteLine("Station n° " + i + " est la station d'ID : " + cheminLePLusCourt[i]);
+            }
+        }
+        public static void ColorationWelshPowell(Graphe graphe)
+        {
+            
+            var noeuds = graphe.AllNodes.Where(n => n.ID != 0).ToList();
+            int n = noeuds.Count;
+
+            Dictionary<int, int> degres = noeuds.ToDictionary(n => n.ID, id => 0);
+            foreach (var lien in graphe.AllLinks)
+            {
+                if (lien.startingNode == 0 || lien.endingNode == 0) continue;
+                degres[lien.startingNode]++;
+                degres[lien.endingNode]++;
             }
 
+            
+            var noeudsTries = degres.OrderByDescending(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
 
+            
+            Dictionary<int, int> couleurParSommet = new();
+
+            int couleur = 1;
+            while (couleurParSommet.Count < n)
+            {
+                HashSet<int> dejaColoriesCetteCouleur = new();
+
+                foreach (int sommet in noeudsTries)
+                {
+                    if (couleurParSommet.ContainsKey(sommet)) continue;
+
+                    bool peutColorier = true;
+                    foreach (var lien in graphe.AllLinks)
+                    {
+                        if (lien.startingNode == 0 || lien.endingNode == 0) continue;
+
+                        if ((lien.startingNode == sommet && couleurParSommet.TryGetValue(lien.endingNode, out int c) && c == couleur) ||
+                            (lien.endingNode == sommet && couleurParSommet.TryGetValue(lien.startingNode, out int c2) && c2 == couleur))
+                        {
+                            peutColorier = false;
+                            break;
+                        }
+                    }
+
+                    if (peutColorier)
+                    {
+                        couleurParSommet[sommet] = couleur;
+                        dejaColoriesCetteCouleur.Add(sommet);
+                    }
+                }
+
+                couleur++;
+            }
+
+            int nbCouleurs = couleur - 1;
+
+            // Affichage des résultats
+            Console.WriteLine($"Nombre minimal de couleurs nécessaires : {nbCouleurs}");
+
+            // Bipartition
+            Console.WriteLine(nbCouleurs == 2
+                ? "Le graphe est biparti."
+                : "Le graphe n'est pas biparti.");
+
+            // Planarité (test simplifié pour graphe simple connexe)
+            int S = noeuds.Count;
+            int A = graphe.AllLinks.Count;
+            bool estPlanaire = A <= 3 * S - 6;
+            Console.WriteLine(estPlanaire
+                ? "Le graphe est probablement planaire (selon la borne d'Euler)."
+                : "Le graphe n'est pas planaire selon la borne d'Euler.");
+
+            // Groupes indépendants (par couleur)
+            var groupes = couleurParSommet
+                .GroupBy(kvp => kvp.Value)
+                .ToDictionary(g => g.Key, g => g.Select(kvp => kvp.Key).ToList());
+
+            Console.WriteLine("\nGroupes indépendants (sommets avec même couleur) :");
+            foreach (var groupe in groupes.OrderBy(g => g.Key))
+            {
+                Console.WriteLine($"Couleur {groupe.Key} : {{ {string.Join(", ", groupe.Value)} }}");
+            }
         }
+
 
         static void Main(string[] args)
         {
-            string mdp = "root";
-            string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=LivInParis;";
+            string mdp = "8Q88445Q";
+            string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=livinparis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
             {
                 try
@@ -602,7 +759,8 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 double maxLon = 2.4699;
                 double lat = Rand.NextDouble() * (maxLat - minLat) + minLat;
                 double lon = Rand.NextDouble() * (maxLon - minLon) + minLon;
-                return $"POINT({lon} {lat})";
+                var culture = System.Globalization.CultureInfo.InvariantCulture;
+                return $"POINT({lon.ToString(culture)} {lat.ToString(culture)})";
             }
             static void UserMenu(MySqlConnection Connection)
             {
@@ -832,17 +990,24 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 string type_client = type_client_input == "p" ? "Particulier" : type_client_input == "e" ? "Entreprise" : null;
                 try
                 {
-                    string Instruction = "INSERT INTO Utilisateur (prenom, nom, coordonnees_geographiques, email, mdp, est_client, est_cuisinier, type_client) " + "VALUES (@prenom, @nom, ST_GeomFromText(@coordonnees_geographiques), @email, @mdp, @est_client, @est_cuisinier, @type_client);";
-                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
-                    Command.Parameters.AddWithValue("@prenom", prenom);
-                    Command.Parameters.AddWithValue("@nom", nom);
-                    Command.Parameters.AddWithValue("@coordonnees_geographiques", positionGeo);
-                    Command.Parameters.AddWithValue("@email", email);
-                    Command.Parameters.AddWithValue("@mdp", mdp);
-                    Command.Parameters.AddWithValue("@est_client", est_client);
-                    Command.Parameters.AddWithValue("@est_cuisinier", est_cuisinier);
-                    Command.Parameters.AddWithValue("@type_client", type_client);
-                    int rowsAffected = Command.ExecuteNonQuery();
+                    string geom = positionGeo.Replace("'", "''");
+                    string instruction =
+                        "INSERT INTO Utilisateur (prenom, nom, coordonnees_geographiques, email, mdp, est_client, est_cuisinier, type_client) " +
+                        $"VALUES (@prenom, @nom, ST_SRID(ST_GeomFromText('{geom}'), 4326), @email, @mdp, @est_client, @est_cuisinier, @type_client);";
+
+                    MySqlCommand command = new MySqlCommand(instruction, Connection);
+                    command.Parameters.AddWithValue("@prenom", prenom);
+                    command.Parameters.AddWithValue("@nom", nom);
+                    command.Parameters.AddWithValue("@email", email);
+                    command.Parameters.AddWithValue("@mdp", mdp);
+                    command.Parameters.AddWithValue("@est_client", est_client);
+                    command.Parameters.AddWithValue("@est_cuisinier", est_cuisinier);
+                    command.Parameters.AddWithValue("@type_client", type_client);
+
+                    Console.WriteLine("Requête envoyée :");
+                    Console.WriteLine(instruction);
+
+                    int rowsAffected = command.ExecuteNonQuery();
                     if (rowsAffected > 0)
                     {
                         Console.WriteLine("Client ajouté avec succès !");
@@ -856,6 +1021,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
+
             }
             static void EditUser(MySqlConnection Connection)
             {
@@ -1543,7 +1709,8 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                         }
                         // Appel de livraison et génération de graphe
                         Graphe metro = new Graphe("MetroParisNoeuds.csv", "MetroParisArcs.csv");
-                        Livraison(metro);
+                        livraison(metro);
+                        ColorationWelshPowell(metro);
                     }
                     else
                     {
