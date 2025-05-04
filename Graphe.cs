@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.IO;
 using Org.BouncyCastle.Crypto.Engines;
 
-namespace KarateGraphe
+namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 {
     public class Graphe
     {
@@ -24,6 +24,7 @@ namespace KarateGraphe
             StreamReader lecteurarcs = new(cheminArcs);
             string ligne = "";
             ligne = lecteurstation.ReadLine();
+            bool notin = true;
 
             string[] tabLine = ligne.Split(";");
 
@@ -31,12 +32,25 @@ namespace KarateGraphe
             {
                 tabLine = ligne.Split(";");
                 
-                Noeud gare = new Noeud(Convert.ToInt32(tabLine[0]), Convert.ToInt32(tabLine[1]), tabLine[2], double.Parse(tabLine[3]), double.Parse(tabLine[4]));
-                if(gare != null)
+                for(int i = 0; i<AllNodes.Count; i++)
                 {
-                    AllNodes.Add(gare);
+                    if (AllNodes[i].ID == Convert.ToInt32(tabLine[0]))
+                    {
+                        AllNodes[i].libelleLigne.Add(Convert.ToInt32(tabLine[1]));
+                        notin = false;
+                    }
                 }
-               
+                
+                if(notin)
+                {
+                    Noeud gare = new Noeud(Convert.ToInt32(tabLine[0]), Convert.ToInt32(tabLine[1]), tabLine[2], double.Parse(tabLine[3]), double.Parse(tabLine[4]));
+                    if (gare != null)
+                    {
+                        AllNodes.Add(gare);
+                    }
+                }
+                notin = true;
+                
             }
 
             ligne = lecteurarcs.ReadLine();
@@ -48,12 +62,13 @@ namespace KarateGraphe
             while ((ligne = lecteurarcs.ReadLine()) != null)
             {
                 tabLine = ligne.Split(";");
-
-                Lien arcs = new Lien(Convert.ToInt32(tabLine[0]), tabLine[1], Convert.ToInt32(tabLine[0]), Convert.ToInt32(tabLine[3]), Convert.ToInt32(tabLine[4]));
+                
+                Lien arcs = new Lien(Convert.ToInt32(tabLine[0]), tabLine[1], Convert.ToInt32(tabLine[2]), Convert.ToInt32(tabLine[3]), Convert.ToInt32(tabLine[4]));
                 if (arcs != null)
                 {
                     AllLinks.Add(arcs);
                 }
+                
             }
 
 
