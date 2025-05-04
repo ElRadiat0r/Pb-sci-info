@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace KarateGraphe
+namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 {
     public class Noeud
     {
         public int NodeID;
         private int EnteringDegree;
         private int OutgoingDegree;
-        public int libelleLigne;
+        public List<int> libelleLigne;
         public string libelleStation;
         public double latitude;
         public double longitude;
@@ -19,7 +13,8 @@ namespace KarateGraphe
         public Noeud(int ID, int Libelleligne, string Libellestation, double Longitude, double Latitude)
         {
             NodeID = ID;
-            libelleLigne = Libelleligne;
+            libelleLigne = new List<int>();
+            libelleLigne.Add(Libelleligne);
             libelleStation = Libellestation;
             longitude = Longitude;
             latitude = Latitude;
@@ -37,7 +32,7 @@ namespace KarateGraphe
         {
             get { return OutgoingDegree; }
         }
-        
+
         public override string ToString()
         {
             return "Numéro du noeud : " + NodeID + "\nDegré entrant : " + EnteringDegree + "\nDegré sortant : " + OutgoingDegree + "\n";
