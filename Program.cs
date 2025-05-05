@@ -700,7 +700,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             Console.WriteLine(cheminLePLusCourt.Count);
             for (int i = 0; i < cheminLePLusCourt.Count; i++)
             {
-                
+
                 Console.WriteLine("Station n° " + i + " est la station d'ID : " + cheminLePLusCourt[i]);
             }
         }
@@ -709,7 +709,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int n = matriceUtilisateurs.GetLength(0);
             int[] degres = new int[n];
 
-            // Calcul des degrés
+            /// Calcul des degrés
             for (int i = 0; i < n; i++)
             {
                 int deg = 0;
@@ -719,12 +719,23 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 degres[i] = deg;
             }
 
-            // Trie des sommets par degré décroissant
-            List<int> sommets = Enumerable.Range(0, n)
-                .OrderByDescending(i => degres[i])
-                .ToList();
+            /// Trie des sommets par degré décroissant
+            List<int> sommets = new List<int>();
+            bool[] dejaAjoute = new bool[n];
 
-            int[] couleurs = new int[n]; // 0 = non coloré
+            for (int d = n; d >= 0; d--)
+            {
+                for (int i = 0; i < n; i++)
+                {
+                    if (!dejaAjoute[i] && degres[i] == d)
+                    {
+                        sommets.Add(i);
+                        dejaAjoute[i] = true;
+                    }
+                }
+            }
+
+            int[] couleurs = new int[n]; /// 0 = non coloré
             int couleurActuelle = 1;
 
             while (sommets.Any(i => couleurs[i] == 0))
@@ -756,12 +767,20 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
 
             int nbCouleurs = couleurs.Max();
-            Console.WriteLine($"Nombre de couleurs minimales nécessaires : {nbCouleurs}");
+            Console.WriteLine("Nombre de couleurs minimales nécessaires : "+ nbCouleurs);
 
-            // Vérifie si biparti : 2 couleurs suffisent
-            Console.WriteLine(nbCouleurs == 2 ? "Le graphe est biparti." : "Le graphe n'est pas biparti.");
+            /// Vérifie si biparti : 2 couleurs suffisent
+            if(nbCouleurs == 2)
+            {
+                Console.WriteLine("Le graphe est biparti");
+            }
+            else
+            {
+                Console.WriteLine("Le graphe n'est pas biparti");
+            }
+            
 
-            // Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
+            /// Vérifie si planaire
             int nbSommets = n;
             int nbArêtes = 0;
 
@@ -773,7 +792,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             bool planaire = nbArêtes <= (3 * nbSommets - 6);
             Console.WriteLine(planaire ? "Le graphe est planaire." : "Le graphe n'est pas planaire.");
 
-            // Affiche les groupes indépendants
+            /// Affiche les groupes indépendants
             Console.WriteLine("\nGroupes indépendants (même couleur, aucun lien entre eux) :");
             for (int c = 1; c <= nbCouleurs; c++)
             {
@@ -820,7 +839,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
         static void Main(string[] args)
         {
-            
+
             string mdp = "8Q88445Q";
             string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=livinparis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
@@ -2058,57 +2077,57 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
-             static void XMLExport(MySqlConnection Connection, string FileName)
-             {
-                 try
-                 {
-                     XElement databaseElement = new XElement("Database");
-                     List<string> TablesNames = new List<string>();
-                     string Instruction = "SHOW TABLES;";
-                     MySqlCommand Command = new MySqlCommand(Instruction, Connection);
-                     MySqlDataReader reader = Command.ExecuteReader();
-                     while (reader.Read())
-                     {
-                         TablesNames.Add(reader.GetString(0));
-                     }
-                     reader.Close();
- 
-                     foreach (string TableByTable in TablesNames)
-                     {
-                         XElement tableElement = new XElement(TableByTable);
-                         string InstructionLignes = $"SELECT * FROM {TableByTable};";
-                         MySqlCommand CommandLignes = new MySqlCommand(InstructionLignes, Connection);
-                         MySqlDataReader readerLignes = CommandLignes.ExecuteReader();
-                         while (readerLignes.Read())
-                         {
-                             XElement rowElement = new XElement("Row");
-                             for (int i = 0; i < readerLignes.FieldCount; i++)
-                             {
-                                 string ColonneName = readerLignes.GetName(i);
-                                 object valeur;
-                                 if (readerLignes.IsDBNull(i))
-                                 {
-                                     valeur = null;
-                                 }
-                                 else
-                                 {
-                                     valeur = readerLignes.GetValue(i);
-                                 }
-                                 rowElement.Add(new XElement(ColonneName, valeur));
-                             }
-                             tableElement.Add(rowElement);
-                         }
-                         databaseElement.Add(tableElement);
-                         readerLignes.Close();
-                     }
-                     databaseElement.Save(FileName);
-                     Console.WriteLine($"Export XML terminé ! Fichier : {FileName}");
-                 }
-                 catch (Exception ex)
-                 {
-                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
-                 }
-             }
+            static void XMLExport(MySqlConnection Connection, string FileName)
+            {
+                try
+                {
+                    XElement databaseElement = new XElement("Database");
+                    List<string> TablesNames = new List<string>();
+                    string Instruction = "SHOW TABLES;";
+                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                    MySqlDataReader reader = Command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        TablesNames.Add(reader.GetString(0));
+                    }
+                    reader.Close();
+
+                    foreach (string TableByTable in TablesNames)
+                    {
+                        XElement tableElement = new XElement(TableByTable);
+                        string InstructionLignes = $"SELECT * FROM {TableByTable};";
+                        MySqlCommand CommandLignes = new MySqlCommand(InstructionLignes, Connection);
+                        MySqlDataReader readerLignes = CommandLignes.ExecuteReader();
+                        while (readerLignes.Read())
+                        {
+                            XElement rowElement = new XElement("Row");
+                            for (int i = 0; i < readerLignes.FieldCount; i++)
+                            {
+                                string ColonneName = readerLignes.GetName(i);
+                                object valeur;
+                                if (readerLignes.IsDBNull(i))
+                                {
+                                    valeur = null;
+                                }
+                                else
+                                {
+                                    valeur = readerLignes.GetValue(i);
+                                }
+                                rowElement.Add(new XElement(ColonneName, valeur));
+                            }
+                            tableElement.Add(rowElement);
+                        }
+                        databaseElement.Add(tableElement);
+                        readerLignes.Close();
+                    }
+                    databaseElement.Save(FileName);
+                    Console.WriteLine($"Export XML terminé ! Fichier : {FileName}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Erreur lors de l’export : " + ex.Message);
+                }
+            }
         }
     }
 }
