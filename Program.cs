@@ -20,24 +20,24 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
     {
         public static int[,] creationMatriceMtx(string chemin)
         {
-            // création d'une matrice d'adjacence à partir d'un fichier de type .mtx
+            ///création d'une matrice d'adjacence à partir d'un fichier de type .mtx
             int[,]? matriceUsers = null;
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
-            string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
+            string[] header = ligne.Split(" "); ///le header est la première ligne du fichier .mtx
 
-            if (header[2] == "coordinate") // on vérfie que le format est coordinate
+            if (header[2] == "coordinate") /// on vérfie que le format est coordinate
             {
                 Console.WriteLine("format = coordinate");
                 while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)//chaque comment lines commence par un % donc on ne passe pas dessus
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)///chaque comment lines commence par un % donc on ne passe pas dessus
                     {
-                        string[] tabline = ligne.Split(' '); // on convertit chaque ligne dans un tableau pour avoir les données séparées
+                        string[] tabline = ligne.Split(' '); /// on convertit chaque ligne dans un tableau pour avoir les données séparées
                         if (tabline.Length == 3) /// la ligne size ligne est de forme m n nonzeros avec m le nombre de ligne et n le nombre de colonnes
                         {
                             Console.WriteLine("Size Line = " + ligne);
-                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; //On créer une matrice des dimensions précisées dans la size line.
+                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; ///On créer une matrice des dimensions précisées dans la size line.
                         }
                     }
                 }
@@ -121,18 +121,18 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
-            string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
+            string[] header = ligne.Split(" "); ///le header est la première ligne du fichier .mtx
 
-            if (header[2] == "coordinate") // on vérfie que le format est coordinate
+            if (header[2] == "coordinate") /// on vérfie que le format est coordinate
             {
                 while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)//chaque comment lines commence par un % donc on ne passe pas dessus
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)///chaque comment lines commence par un % donc on ne passe pas dessus
                     {
-                        string[] tabline = ligne.Split(' '); // on convertit chaque ligne dans un tableau pour avoir les données séparées
+                        string[] tabline = ligne.Split(' '); ///on convertit chaque ligne dans un tableau pour avoir les données séparées
                         if (tabline.Length == 3) /// la ligne size ligne est de forme m n nonzeros avec m le nombre de ligne et n le nombre de colonnes
                         {
-                            noeuds = int.Parse(tabline[0]); // le nombre de noeuds
+                            noeuds = int.Parse(tabline[0]); ///le nombre de noeuds
                             break;
                         }
                     }
@@ -146,16 +146,16 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while ((ligne = lecteur.ReadLine()) != null)
             {
-                if (ligne.Length > 0 && ligne[0] != '%') // Encore pour ignorer les commentaires
+                if (ligne.Length > 0 && ligne[0] != '%') /// Encore pour ignorer les commentaires
                 {
                     string[] tabline = ligne.Split(' ');
-                    if (tabline.Length >= 2) // Vérifier qu'on a bien des données
+                    if (tabline.Length >= 2) /// Vérifier qu'on a bien des données
                     {
                         int u = int.Parse(tabline[0]);
                         int v = int.Parse(tabline[1]);
 
                         adjacencyList[u].Add(v);
-                        adjacencyList[v].Add(u); // Graphe non orienté
+                        adjacencyList[v].Add(u); ///Graphe non orienté
                     }
                 }
             }
@@ -163,7 +163,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void affichageMatrice(int[,] matrice)
         {
-            //affichage de la matrice
+            ///affichage de la matrice
             for (int i = 0; i < matrice.GetLength(0); i++)
             {
                 for (int ii = 0; ii < matrice.GetLength(1); ii++)
@@ -186,7 +186,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
-            Pile pile = new Pile(); // j'ai créer une classe pile avant de me rendre compte que Stack<T> existe
+            Pile pile = new Pile(); ///j'ai créer une classe pile avant de me rendre compte que Stack<T> existe
 
             int result = DFS(depart, matrice, visite, pile, 0, affichage);
             return result;
@@ -207,7 +207,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 if (matrice[sommet, i] == 1 && !visite[i])
                 {
                     pile.add(i);
-                    c = DFS(i, matrice, visite, pile, c, affichage); // appel récursif (on incrémente le compteur, il va servir pour estConnexe
+                    c = DFS(i, matrice, visite, pile, c, affichage); /// appel récursif (on incrémente le compteur, il va servir pour estConnexe
                     pile.remove();
                 }
             }
@@ -217,7 +217,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int n = matrice.GetLength(0);
             int c = 0;
-            bool[] visite = new bool[n]; // tableau des noeuds déjà visités
+            bool[] visite = new bool[n]; ///tableau des noeuds déjà visités
             Queue<int> file = new Queue<int>();
 
             visite[depart] = true;
@@ -246,7 +246,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             dot.AppendLine("graph G {");
             dot.AppendLine("    node [shape=circle, style=filled, fillcolor=white, fontname=\"Arial\"];");
 
-            // 1. Affichage des noeuds : ID dans le rond, nom à côté
+            ///1. Affichage des noeuds : ID dans le rond, nom à côté
             foreach (var node in graphe.AllNodes)
             {
                 if (node.ID == 0) continue; // Ignore le noeud 0
@@ -256,7 +256,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 dot.AppendLine($"    {node.ID} -- label_{node.ID} [style=invis];");
             }
 
-            // 2. Gestion des couleurs par ligne
+            ///2. Gestion des couleurs par ligne
             Dictionary<int, string> couleurParLigne = new();
             string[] palette = { "red", "blue", "green", "orange", "purple", "brown", "cyan", "magenta", "gray", "pink" };
             int couleurIndex = 0;
@@ -291,7 +291,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
                     int ligne = noeud.libelleLigne.First(); // ou autre stratégie si plusieurs lignes
 
-                    // Couleur pour cette ligne
+                    /// Couleur pour cette ligne
                     if (!couleurParLigne.ContainsKey(ligne))
                     {
                         couleurParLigne[ligne] = palette[couleurIndex % palette.Length];
@@ -307,11 +307,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             dot.AppendLine("}");
 
-            // 3. Écriture fichier .dot
+            ///3. Écriture fichier .dot
             string dotPath = "graphe.dot";
             File.WriteAllText(dotPath, dot.ToString());
 
-            // 4. Génération image PNG avec Graphviz
+            /// 4. Génération image PNG avec Graphviz
             string imagePath = "graphe.png";
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -354,7 +354,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
 
-            // On parcourt tous les sommets pour vérifier s'il y a des cycles
+            /// On parcourt tous les sommets pour vérifier s'il y a des cycles
             for (int i = 0; i < n; i++)
             {
                 if (!visite[i] && RechercheCycle(i, matrice, visite, -1)) // Le -1 représente l'absence de parent pour le sommet initial
@@ -381,7 +381,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                     else if (i != parent)
                     {
-                        //le cas ou le sommet n'a pas été visité et n'est pas parent immédiat, on a un cycle.
+                        ///le cas ou le sommet n'a pas été visité et n'est pas parent immédiat, on a un cycle.
                         return true;
                     }
                 }
@@ -394,7 +394,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             var precedent = new Dictionary<int, int>();
             var nonVisites = new HashSet<int>();
 
-            // Initialisation
+            /// Initialisation
             foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
                 distances[noeud.ID] = int.MaxValue;
@@ -405,12 +405,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while (nonVisites.Count > 0)
             {
-                // Sélectionne le noeud non visité avec la distance minimale
+                ///Sélectionne le noeud non visité avec la distance minimale
                 int courant = nonVisites.OrderBy(n => distances[n]).First();
 
                 nonVisites.Remove(courant);
 
-                // Pour tous les voisins connectés à courant via un lien
+                /// Pour tous les voisins connectés à courant via un lien
                 foreach (var lien in graphe.AllLinks)
                 {
                     if (lien.stationId == 0) continue;
@@ -443,7 +443,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 }
             }
 
-            // Reconstruction du chemin
+            /// Reconstruction du chemin
             var chemin = new List<int>();
             int node = arrivee;
 
@@ -703,15 +703,15 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             int nbCouleurs = couleur - 1;
 
-            // Affichage des résultats
+            ///Affichage des résultats
             Console.WriteLine($"Nombre minimal de couleurs nécessaires : {nbCouleurs}");
 
-            // Bipartition
+            /// Bipartition
             Console.WriteLine(nbCouleurs == 2
                 ? "Le graphe est biparti."
                 : "Le graphe n'est pas biparti.");
 
-            // Planarité (test simplifié pour graphe simple connexe)
+            /// Planarité (test simplifié pour graphe simple connexe)
             int S = noeuds.Count;
             int A = graphe.AllLinks.Count;
             bool estPlanaire = A <= 3 * S - 6;
@@ -719,7 +719,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 ? "Le graphe est probablement planaire (selon la borne d'Euler)."
                 : "Le graphe n'est pas planaire selon la borne d'Euler.");
 
-            // Groupes indépendants (par couleur)
+            /// Groupes indépendants (par couleur)
             var groupes = couleurParSommet
                 .GroupBy(kvp => kvp.Value)
                 .ToDictionary(g => g.Key, g => g.Select(kvp => kvp.Key).ToList());
@@ -737,7 +737,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 .Where(l => l.stationId != 0 && l.startingNode != 0 && l.endingNode != 0)
                 .ToList();
 
-            // Création de tous les arcs orientés : startingNode → stationId, stationId → endingNode
+            /// Création de tous les arcs orientés : startingNode → stationId, stationId → endingNode
             var arcs = new List<(int from, int to, int poids, Lien lienOriginal)>();
             foreach (var l in liensUtilisables)
             {
@@ -745,7 +745,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 arcs.Add((l.stationId, l.endingNode, l.tripValue, l));
             }
 
-            // Arcs entrants minimaux pour chaque noeud (hors racine)
+            /// Arcs entrants minimaux pour chaque noeud (hors racine)
             var parents = new Dictionary<int, (int from, int poids, Lien lienOriginal)>();
             foreach (int noeud in stationsCibles)
             {
@@ -757,7 +757,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 parents[noeud] = (arcMin.from, arcMin.poids, arcMin.lienOriginal);
             }
 
-            // Détection de cycles (simplifié)
+            /// Détection de cycles (simplifié)
             var cycleTrouvé = false;
             var visités = new HashSet<int>();
             foreach (var noeud in parents.Keys)
@@ -784,7 +784,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             var result = parents.Values.Select(p => p.lienOriginal).Distinct().ToList();
 
-            // 🔽 Affichage des résultats
+            ///Affichage des résultats
             Console.WriteLine("\nArborescence couvrante minimale trouvée :\n");
             foreach (var lien in result)
             {
@@ -792,7 +792,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 string nom2 = graphe.AllNodes.FirstOrDefault(n => n.ID == lien.endingNode)?.libelleStation ?? "Inconnu";
                 Console.WriteLine($"- {lien.startingNode} ({nom1}) <-> {lien.endingNode} ({nom2}) | Poids : {lien.tripValue}");
             }
-
             return result;
         }
 
