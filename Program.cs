@@ -81,9 +81,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             // Récupérer les noeuds valides (ID != 0)
             var noeudsValid = graphe.AllNodes
-                .Where(n => n.ID != 0)
-                .OrderBy(n => n.ID)
-                .ToList();
+            .Where(n => n.ID != 0)
+            .OrderBy(n => n.ID)
+            .ToList();
 
             int n = noeudsValid.Count;
             int[,] matrice = new int[n, n];
@@ -449,7 +449,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             var precedent = new Dictionary<int, int>();
             var nonVisites = new HashSet<int>();
 
-            /// Initialisation
+            // Initialisation
             foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
                 distances[noeud.ID] = int.MaxValue;
@@ -460,12 +460,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while (nonVisites.Count > 0)
             {
-                /// Sélectionne le noeud non visité avec la distance minimale
+                // Sélectionne le noeud non visité avec la distance minimale
                 int courant = nonVisites.OrderBy(n => distances[n]).First();
 
                 nonVisites.Remove(courant);
 
-                /// Pour tous les voisins connectés à courant via un lien
+                // Pour tous les voisins connectés à courant via un lien
                 foreach (var lien in graphe.AllLinks)
                 {
                     if (lien.stationId == 0) continue;
@@ -473,32 +473,20 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     var voisins = new List<int>();
 
                     if (lien.startingNode == courant && lien.stationId != 0)
-                    {
                         voisins.Add(lien.stationId);
-
-                    }
                     if (lien.endingNode == courant && lien.stationId != 0)
-                    {
                         voisins.Add(lien.stationId);
-                    }
                     if (lien.stationId == courant)
                     {
                         if (lien.startingNode != 0)
-                        {
                             voisins.Add(lien.startingNode);
-                        }
                         if (lien.endingNode != 0)
-                        {
                             voisins.Add(lien.endingNode);
-                        }
                     }
 
                     foreach (int voisin in voisins)
                     {
-                        if (!nonVisites.Contains(voisin)) 
-                        {
-                            continue;
-                        }
+                        if (!nonVisites.Contains(voisin)) continue;
 
                         int alt = distances[courant] + lien.tripValue;
                         if (alt < distances[voisin])
@@ -510,19 +498,18 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 }
             }
 
-            /// Reconstruction du chemin
+            // Reconstruction du chemin
             var chemin = new List<int>();
             int node = arrivee;
 
-            while (precedent.ContainsKey(node))
+            while (node != -1)
             {
                 chemin.Insert(0, node);
-                node = precedent[node];
+                node = precedent.ContainsKey(node) ? precedent[node] : -1;
             }
-            chemin.Insert(0, node);
 
             if (chemin.First() != depart)
-                return new List<int>(); /// Aucun chemin trouvé
+                return new List<int>(); // Aucun chemin trouvé
 
             return chemin;
         }
@@ -631,6 +618,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void livraison(Graphe graphe)
         {
+
             List<Noeud> listeStations = new List<Noeud>();
             int arrivee = 0;
             int depart = 0;
@@ -713,6 +701,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             for (int i = 0; i < cheminLePLusCourt.Count; i++)
             {
 
+
                 Console.WriteLine("Station n° " + i + " est la station d'ID : " + cheminLePLusCourt[i]);
             }
         }
@@ -779,10 +768,13 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
 
             int nbCouleurs = couleurs.Max();
-            Console.WriteLine("Nombre de couleurs minimales nécessaires : "+ nbCouleurs);
+            Console.WriteLine($"Nombre de couleurs minimales nécessaires : {nbCouleurs}");
+            Console.WriteLine("Nombre de couleurs minimales nécessaires : " + nbCouleurs);
 
+            // Vérifie si biparti : 2 couleurs suffisent
+            Console.WriteLine(nbCouleurs == 2 ? "Le graphe est biparti." : "Le graphe n'est pas biparti.");
             /// Vérifie si biparti : 2 couleurs suffisent
-            if(nbCouleurs == 2)
+            if (nbCouleurs == 2)
             {
                 Console.WriteLine("Le graphe est biparti");
             }
@@ -790,8 +782,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             {
                 Console.WriteLine("Le graphe n'est pas biparti");
             }
-            
 
+
+            // Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
             /// Vérifie si planaire
             int nbSommets = n;
             int nbArêtes = 0;
@@ -804,6 +797,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             bool planaire = nbArêtes <= (3 * nbSommets - 6);
             Console.WriteLine(planaire ? "Le graphe est planaire." : "Le graphe n'est pas planaire.");
 
+            // Affiche les groupes indépendants
             /// Affiche les groupes indépendants
             Console.WriteLine("\nGroupes indépendants (même couleur, aucun lien entre eux) :");
             for (int c = 1; c <= nbCouleurs; c++)
@@ -851,6 +845,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
         static void Main(string[] args)
         {
+
 
             string mdp = "8Q88445Q";
             string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=livinparis;";
@@ -1110,8 +1105,8 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {
                     string geom = positionGeo.Replace("'", "''");
                     string instruction =
-                        "INSERT INTO Utilisateur (prenom, nom, coordonnees_geographiques, email, mdp, est_client, est_cuisinier, type_client) " +
-                        $"VALUES (@prenom, @nom, ST_SRID(ST_GeomFromText('{geom}'), 4326), @email, @mdp, @est_client, @est_cuisinier, @type_client);";
+                    "INSERT INTO Utilisateur (prenom, nom, coordonnees_geographiques, email, mdp, est_client, est_cuisinier, type_client) " +
+                    $"VALUES (@prenom, @nom, ST_SRID(ST_GeomFromText('{geom}'), 4326), @email, @mdp, @est_client, @est_cuisinier, @type_client);";
 
                     MySqlCommand command = new MySqlCommand(instruction, Connection);
                     command.Parameters.AddWithValue("@prenom", prenom);
@@ -2140,6 +2135,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
+
         }
     }
 }
