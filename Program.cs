@@ -11,6 +11,9 @@ using System.Reflection.PortableExecutable;
 using System.ComponentModel;
 using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 using System.Text.Json;
+using Google.Protobuf.WellKnownTypes;
+using System.Xml.Linq;
+
 namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 {
     public class Program
@@ -105,7 +108,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     int i = idToIndex[a];
                     int j = idToIndex[b];
                     matrice[i, j] = lien.tripValue;
-                    matrice[j, i] = lien.tripValue; // graphe non orienté
+                    matrice[j, i] = lien.tripValue; // car le graphe des metro est non orienté
                 }
             }
 
@@ -455,7 +458,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             return chemin;
         }
-
         public static List<int> BellmanFord(int depart, int arrivee, int[,] matriceUsers)
         {
             int taille = matriceUsers.GetLength(0);
@@ -571,6 +573,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             string stationArrivee = "";
             int numLigne = -1;
             int numStation = -1;
+
 
             ///choix adresse de départ
             while (numLigne <= 0 || numLigne > 14)
@@ -727,6 +730,73 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 Console.WriteLine($"Couleur {groupe.Key} : {{ {string.Join(", ", groupe.Value)} }}");
             }
         }
+        public static List<Lien> ChuLiuEdmonds(Graphe graphe, int racine, List<int> stationsCibles)
+        {
+            var noeuds = graphe.AllNodes.Where(n => n.ID != 0).Select(n => n.ID).ToHashSet();
+            var liensUtilisables = graphe.AllLinks
+                .Where(l => l.stationId != 0 && l.startingNode != 0 && l.endingNode != 0)
+                .ToList();
+
+            // Création de tous les arcs orientés : startingNode → stationId, stationId → endingNode
+            var arcs = new List<(int from, int to, int poids, Lien lienOriginal)>();
+            foreach (var l in liensUtilisables)
+            {
+                arcs.Add((l.startingNode, l.stationId, l.tripValue, l));
+                arcs.Add((l.stationId, l.endingNode, l.tripValue, l));
+            }
+
+            // Arcs entrants minimaux pour chaque noeud (hors racine)
+            var parents = new Dictionary<int, (int from, int poids, Lien lienOriginal)>();
+            foreach (int noeud in stationsCibles)
+            {
+                if (noeud == racine) continue;
+                var arcsEntrants = arcs.Where(a => a.to == noeud && a.from != noeud).ToList();
+                if (arcsEntrants.Count == 0) continue;
+                var arcMin = arcsEntrants.OrderBy(a => a.poids).First();
+
+                parents[noeud] = (arcMin.from, arcMin.poids, arcMin.lienOriginal);
+            }
+
+            // Détection de cycles (simplifié)
+            var cycleTrouvé = false;
+            var visités = new HashSet<int>();
+            foreach (var noeud in parents.Keys)
+            {
+                visités.Clear();
+                int courant = noeud;
+                while (parents.ContainsKey(courant))
+                {
+                    if (!visités.Add(courant))
+                    {
+                        cycleTrouvé = true;
+                        break;
+                    }
+                    courant = parents[courant].from;
+                }
+                if (cycleTrouvé) break;
+            }
+
+            if (cycleTrouvé)
+            {
+                Console.WriteLine("Cycle détecté. Version complète de Chu-Liu/Edmonds requise.");
+                return new List<Lien>();
+            }
+
+            var result = parents.Values.Select(p => p.lienOriginal).Distinct().ToList();
+
+            // 🔽 Affichage des résultats
+            Console.WriteLine("\nArborescence couvrante minimale trouvée :\n");
+            foreach (var lien in result)
+            {
+                string nom1 = graphe.AllNodes.FirstOrDefault(n => n.ID == lien.startingNode)?.libelleStation ?? "Inconnu";
+                string nom2 = graphe.AllNodes.FirstOrDefault(n => n.ID == lien.endingNode)?.libelleStation ?? "Inconnu";
+                Console.WriteLine($"- {lien.startingNode} ({nom1}) <-> {lien.endingNode} ({nom2}) | Poids : {lien.tripValue}");
+            }
+
+            return result;
+        }
+
+
 
 
         static void Main(string[] args)
@@ -1707,7 +1777,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                         // Appel de livraison et génération de graphe
                         Graphe metro = new Graphe("MetroParisNoeuds.csv", "MetroParisArcs.csv");
                         livraison(metro);
-                        ColorationWelshPowell(metro);
+                        //ColorationWelshPowell(metro);
+                        List<int> stationCibles = new List<int> {1, 12, 103, 64, 185, 191, 244, 301, 318, 330};
+                        ChuLiuEdmonds(metro, 119, stationCibles);
                     }
                     else
                     {
@@ -1954,6 +2026,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
+
         }
     }
 }
