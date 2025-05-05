@@ -49,7 +49,7 @@ CREATE TABLE `avis` (
 
 LOCK TABLES `avis` WRITE;
 /*!40000 ALTER TABLE `avis` DISABLE KEYS */;
-INSERT INTO `avis` VALUES (1,1,1,3,5,'Un r√©gal !','2025-04-09 17:52:18'),(2,1,2,4,4,'D√©licieux.','2025-04-09 17:52:18'),(3,2,5,6,3,'Mon plat √©tait un peu froid.','2025-04-09 17:52:18');
+INSERT INTO `avis` VALUES (1,1,1,3,5,'Un r√É¬©gal !','2025-04-09 17:52:18'),(2,1,2,4,4,'D√É¬©licieux.','2025-04-09 17:52:18'),(3,2,5,6,3,'Mon plat √É¬©tait un peu froid.','2025-04-09 17:52:18');
 /*!40000 ALTER TABLE `avis` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -102,7 +102,7 @@ CREATE TABLE `ingredient` (
 
 LOCK TABLES `ingredient` WRITE;
 /*!40000 ALTER TABLE `ingredient` DISABLE KEYS */;
-INSERT INTO `ingredient` VALUES (6,'Champignons'),(8,'Chocolat'),(7,'Cr√®me fra√Æche'),(3,'Fromage'),(11,'Lait'),(10,'Lardons'),(12,'Oeufs'),(9,'P√¢tes'),(2,'P√¢tes √† lasagnes'),(14,'Pommes'),(4,'Poulet'),(5,'Riz'),(13,'Sucre'),(1,'Tomates');
+INSERT INTO `ingredient` VALUES (6,'Champignons'),(8,'Chocolat'),(7,'Cr√É¬®me fra√É¬Æche'),(3,'Fromage'),(11,'Lait'),(10,'Lardons'),(12,'Oeufs'),(9,'P√É¬¢tes'),(2,'P√É¬¢tes √É¬† lasagnes'),(14,'Pommes'),(4,'Poulet'),(5,'Riz'),(13,'Sucre'),(1,'Tomates');
 /*!40000 ALTER TABLE `ingredient` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -163,7 +163,7 @@ CREATE TABLE `plat` (
 
 LOCK TABLES `plat` WRITE;
 /*!40000 ALTER TABLE `plat` DISABLE KEYS */;
-INSERT INTO `plat` VALUES (1,4,'Lasagnes √† la bolognaise','2025-04-01',12.50,'Italienne','Omnivore'),(2,3,'Poulet √† la cr√®me et champignons','2025-04-02',13.00,'Fran√ßaise','Omnivore'),(3,3,'Riz au poulet fa√ßon tha√Ø','2025-04-01',11.00,'Tha√Ølandaise','Omnivore'),(4,4,'G√¢teau au chocolat','2025-04-01',6.50,'Fran√ßaise','V√©g√©tarien'),(5,4,'P√¢tes carbonara','2025-04-01',10.50,'Italienne','Omnivore'),(6,6,'Omelette aux lardons','2025-04-01',9.50,'Fran√ßaise','Omnivore'),(7,8,'Tartes aux pommes','2025-04-01',8.50,'Fran√ßaise','V√©g√©tarien');
+INSERT INTO `plat` VALUES (1,4,'Lasagnes √É¬† la bolognaise','2025-04-01',12.50,'Italienne','Omnivore'),(2,3,'Poulet √É¬† la cr√É¬®me et champignons','2025-04-02',13.00,'Fran√É¬ßaise','Omnivore'),(3,3,'Riz au poulet fa√É¬ßon tha√É¬Ø','2025-04-01',11.00,'Tha√É¬Ølandaise','Omnivore'),(4,4,'G√É¬¢teau au chocolat','2025-04-01',6.50,'Fran√É¬ßaise','V√É¬©g√É¬©tarien'),(5,4,'P√É¬¢tes carbonara','2025-04-01',10.50,'Italienne','Omnivore'),(6,6,'Omelette aux lardons','2025-04-01',9.50,'Fran√É¬ßaise','Omnivore'),(7,8,'Tartes aux pommes','2025-04-01',8.50,'Fran√É¬ßaise','V√É¬©g√É¬©tarien');
 /*!40000 ALTER TABLE `plat` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -222,7 +222,7 @@ CREATE TABLE `utilisateur` (
 
 LOCK TABLES `utilisateur` WRITE;
 /*!40000 ALTER TABLE `utilisateur` DISABLE KEYS */;
-INSERT INTO `utilisateur` VALUES (1,'Alice','Durand',_binary '\0\0\0\0\0\0\0®5\Õ;N\—@v\‡ú•mH@','alice.durand@example.com','mdp123',1,0,'Particulier'),(2,'Bob','Martin',_binary '\0\0\0\0\0\0\0£í:M@fffffnH@','bob.martin@example.com','mdp456',1,0,'Entreprise'),(3,'Clara','Lemoine',_binary '\0\0\0\0\0\0\0\ZQ\⁄|\·@wæü\Z/mH@','clara.lemoine@example.com','mdp789',1,1,'Particulier'),(4,'David','Bernard',_binary '\0\0\0\0\0\0\0\\è\¬ı(\\@Vü´≠\ÿoH@','david.bernard@example.com','pass001',0,1,NULL),(5,'Emma','Morel',_binary '\0\0\0\0\0\0\0Ö\ÎQ∏@yX®5\ÕkH@','emma.morel@example.com','pass002',1,0,'Entreprise'),(6,'Fabien','Roux',_binary '\0\0\0\0\0\0\0§p=\n◊£@è\¬ı(\\oH@','fabien.roux@example.com','pass003',0,1,NULL),(7,'Claire','Dupont',_binary '\0\0\0\0\0\0\0\Ì\ræ0ô™@ÆG\·znH@','claire.dupont@example.com','mdp123',1,0,'Particulier'),(8,'Julien','Martin',_binary '\0\0\0\0\0\0\0∏Ö\ÎQ∏@è\¬ı(\\oH@','julien.martin@example.com','mdp456',1,1,'Entreprise'),(9,'Sophie','Bernard',_binary '\0\0\0\0\0\0\0ˆ(\\è\¬ı@\Õ\Ã\Ã\Ã\ÃlH@','sophie.bernard@example.com','mdp789',1,0,'Particulier'),(10,'Lucas','Moreau',_binary '\0\0\0\0\0\0\0{ÆG\·z@Ö\ÎQ∏nH@','lucas.moreau@example.com','mdp321',1,1,'Entreprise'),(11,'Emma','Leroy',_binary '\0\0\0\0\0\0\0◊£p=\n\◊@\ÏQ∏ÖkH@','emma.leroy@example.com','mdp654',1,0,'Particulier'),(12,'Alexandre','DUFORET',_binary '\0\0\0\0\0\0\0£í:M@fffffnH@','alexandre.duforet@edu.devinci.fr','vroum',1,1,'Particulier');
+INSERT INTO `utilisateur` VALUES (1,'Alice','Durand',POINT (2.3522 48.8566),'alice.durand@example.com','mdp123',1,0,'Particulier'),(2,'Bob','Martin',POINT (2.2876 48.8625),'bob.martin@example.com','mdp456',1,0,'Entreprise'),(3,'Clara','Lemoine',POINT (2.3601 48.853),'clara.lemoine@example.com','mdp789',1,1,'Particulier'),(4,'David','Bernard',POINT (2.295 48.8738),'david.bernard@example.com','pass001',0,1,NULL),(5,'Emma','Morel',POINT (2.3775 48.8422),'emma.morel@example.com','pass002',1,0,'Entreprise'),(6,'Fabien','Roux',POINT (2.33 48.87),'fabien.roux@example.com','pass003',0,1,NULL),(7,'Claire','Dupont',POINT (2.3333 48.86),'claire.dupont@example.com','mdp123',1,0,'Particulier'),(8,'Julien','Martin',POINT (2.34 48.87),'julien.martin@example.com','mdp456',1,1,'Entreprise'),(9,'Sophie','Bernard',POINT (2.37 48.85),'sophie.bernard@example.com','mdp789',1,0,'Particulier'),(10,'Lucas','Moreau',POINT (2.31 48.865),'lucas.moreau@example.com','mdp321',1,1,'Entreprise'),(11,'Emma','Leroy',POINT (2.355 48.84),'emma.leroy@example.com','mdp654',1,0,'Particulier'),(12,'Alexandre','DUFORET',POINT (2.2876 48.8625),'alexandre.duforet@edu.devinci.fr','vroum',1,1,'Particulier');
 /*!40000 ALTER TABLE `utilisateur` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
