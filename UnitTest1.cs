@@ -25,7 +25,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {1,1,1},
                 {1,0,1},
                 {1,1,1},
-            };
+            }
             Assert.IsTrue(Program.ContientCycle(mat));
         }
 
@@ -57,12 +57,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int[,] mat = new int[,]
             {
-                {1,2,0,3},
-                {1,2,3,4},
-                {0,0,1,0},
-                {0,1,2,2},
+                {1,1,1},
+                {1,0,1},
+                {1,1,1},
             };
-            Assert.IsTrue(Program.estConnexe(mat));
+            bool result = Program.estConnexe(mat);
+            Assert.AreEqual(true, result);
         }
 
          [TestMethod]
