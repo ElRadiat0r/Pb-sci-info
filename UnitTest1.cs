@@ -57,7 +57,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {1,2,0,3},
                 {1,2,3,4},
                 {0,0,1,0},
-                {0,1,0,2},
+                {0,1,2,2},
             };
             Assert.IsTrue(Program.estConnexe(mat));
         }
