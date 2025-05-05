@@ -1,0 +1,632 @@
+{
+  "avis": [
+    {
+      "id_avis": 1,
+      "id_commande": 1,
+      "id_client": 1,
+      "id_cuisinier": 3,
+      "etoile": 5,
+      "commentaire": "Un r\u00E9gal !",
+      "date_avis": "2025-04-09T17:52:18"
+    },
+    {
+      "id_avis": 2,
+      "id_commande": 1,
+      "id_client": 2,
+      "id_cuisinier": 4,
+      "etoile": 4,
+      "commentaire": "D\u00E9licieux.",
+      "date_avis": "2025-04-09T17:52:18"
+    },
+    {
+      "id_avis": 3,
+      "id_commande": 2,
+      "id_client": 5,
+      "id_cuisinier": 6,
+      "etoile": 3,
+      "commentaire": "Mon plat \u00E9tait un peu froid.",
+      "date_avis": "2025-04-09T17:52:18"
+    }
+  ],
+  "commande": [
+    {
+      "id_commande": 1,
+      "id_client": 1,
+      "date_commande": "2025-04-01T12:00:00",
+      "montant_total": 46.50
+    },
+    {
+      "id_commande": 2,
+      "id_client": 2,
+      "date_commande": "2025-04-02T14:00:00",
+      "montant_total": 77.50
+    },
+    {
+      "id_commande": 3,
+      "id_client": 3,
+      "date_commande": "2025-04-10T12:17:50",
+      "montant_total": 68.00
+    },
+    {
+      "id_commande": 4,
+      "id_client": 5,
+      "date_commande": "2025-04-04T18:00:00",
+      "montant_total": 97.50
+    },
+    {
+      "id_commande": 5,
+      "id_client": 7,
+      "date_commande": "2025-04-05T20:00:00",
+      "montant_total": 32.00
+    },
+    {
+      "id_commande": 6,
+      "id_client": 8,
+      "date_commande": "2025-04-06T11:30:00",
+      "montant_total": 48.50
+    },
+    {
+      "id_commande": 7,
+      "id_client": 9,
+      "date_commande": "2025-04-07T14:30:00",
+      "montant_total": 73.00
+    },
+    {
+      "id_commande": 8,
+      "id_client": 10,
+      "date_commande": "2025-04-08T16:00:00",
+      "montant_total": 95.50
+    },
+    {
+      "id_commande": 9,
+      "id_client": 11,
+      "date_commande": "2025-04-09T10:45:00",
+      "montant_total": 45.50
+    },
+    {
+      "id_commande": 10,
+      "id_client": 3,
+      "date_commande": "2025-04-10T13:15:00",
+      "montant_total": 58.00
+    },
+    {
+      "id_commande": 11,
+      "id_client": 12,
+      "date_commande": "2025-04-10T12:02:28",
+      "montant_total": 17.00
+    },
+    {
+      "id_commande": 12,
+      "id_client": 12,
+      "date_commande": "2025-05-02T16:19:55",
+      "montant_total": 27.50
+    },
+    {
+      "id_commande": 13,
+      "id_client": 3,
+      "date_commande": "2025-05-05T13:40:56",
+      "montant_total": 22.00
+    }
+  ],
+  "ingredient": [
+    {
+      "id_ingredient": 6,
+      "nom": "Champignons"
+    },
+    {
+      "id_ingredient": 8,
+      "nom": "Chocolat"
+    },
+    {
+      "id_ingredient": 7,
+      "nom": "Cr\u00E8me fra\u00EEche"
+    },
+    {
+      "id_ingredient": 3,
+      "nom": "Fromage"
+    },
+    {
+      "id_ingredient": 11,
+      "nom": "Lait"
+    },
+    {
+      "id_ingredient": 10,
+      "nom": "Lardons"
+    },
+    {
+      "id_ingredient": 12,
+      "nom": "Oeufs"
+    },
+    {
+      "id_ingredient": 9,
+      "nom": "P\u00E2tes"
+    },
+    {
+      "id_ingredient": 2,
+      "nom": "P\u00E2tes \u00E0 lasagnes"
+    },
+    {
+      "id_ingredient": 14,
+      "nom": "Pommes"
+    },
+    {
+      "id_ingredient": 4,
+      "nom": "Poulet"
+    },
+    {
+      "id_ingredient": 5,
+      "nom": "Riz"
+    },
+    {
+      "id_ingredient": 13,
+      "nom": "Sucre"
+    },
+    {
+      "id_ingredient": 1,
+      "nom": "Tomates"
+    }
+  ],
+  "lignecommande": [
+    {
+      "id_ligne": 1,
+      "id_commande": 1,
+      "id_plat": 1,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 2,
+      "id_commande": 1,
+      "id_plat": 3,
+      "quantite": 1
+    },
+    {
+      "id_ligne": 3,
+      "id_commande": 1,
+      "id_plat": 5,
+      "quantite": 1
+    },
+    {
+      "id_ligne": 4,
+      "id_commande": 2,
+      "id_plat": 2,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 5,
+      "id_commande": 2,
+      "id_plat": 6,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 6,
+      "id_commande": 2,
+      "id_plat": 4,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 9,
+      "id_commande": 4,
+      "id_plat": 1,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 10,
+      "id_commande": 4,
+      "id_plat": 2,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 11,
+      "id_commande": 4,
+      "id_plat": 7,
+      "quantite": 4
+    },
+    {
+      "id_ligne": 12,
+      "id_commande": 5,
+      "id_plat": 4,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 13,
+      "id_commande": 5,
+      "id_plat": 6,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 14,
+      "id_commande": 6,
+      "id_plat": 5,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 15,
+      "id_commande": 6,
+      "id_plat": 7,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 16,
+      "id_commande": 7,
+      "id_plat": 2,
+      "quantite": 4
+    },
+    {
+      "id_ligne": 17,
+      "id_commande": 7,
+      "id_plat": 5,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 18,
+      "id_commande": 8,
+      "id_plat": 1,
+      "quantite": 4
+    },
+    {
+      "id_ligne": 19,
+      "id_commande": 8,
+      "id_plat": 6,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 20,
+      "id_commande": 8,
+      "id_plat": 7,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 21,
+      "id_commande": 9,
+      "id_plat": 4,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 22,
+      "id_commande": 9,
+      "id_plat": 2,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 23,
+      "id_commande": 10,
+      "id_plat": 3,
+      "quantite": 3
+    },
+    {
+      "id_ligne": 24,
+      "id_commande": 10,
+      "id_plat": 1,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 25,
+      "id_commande": 11,
+      "id_plat": 7,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 26,
+      "id_commande": 3,
+      "id_plat": 5,
+      "quantite": 4
+    },
+    {
+      "id_ligne": 27,
+      "id_commande": 3,
+      "id_plat": 4,
+      "quantite": 4
+    },
+    {
+      "id_ligne": 28,
+      "id_commande": 12,
+      "id_plat": 6,
+      "quantite": 2
+    },
+    {
+      "id_ligne": 29,
+      "id_commande": 12,
+      "id_plat": 7,
+      "quantite": 1
+    },
+    {
+      "id_ligne": 30,
+      "id_commande": 13,
+      "id_plat": 3,
+      "quantite": 2
+    }
+  ],
+  "plat": [
+    {
+      "id_plat": 1,
+      "id_cuisinier": 4,
+      "nom_plat": "Lasagnes \u00E0 la bolognaise",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 12.50,
+      "nationalite": "Italienne",
+      "regime_alimentaire": "Omnivore"
+    },
+    {
+      "id_plat": 2,
+      "id_cuisinier": 3,
+      "nom_plat": "Poulet \u00E0 la cr\u00E8me et champignons",
+      "date_fabrication": "2025-04-02T00:00:00",
+      "prix_plat": 13.00,
+      "nationalite": "Fran\u00E7aise",
+      "regime_alimentaire": "Omnivore"
+    },
+    {
+      "id_plat": 3,
+      "id_cuisinier": 3,
+      "nom_plat": "Riz au poulet fa\u00E7on tha\u00EF",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 11.00,
+      "nationalite": "Tha\u00EFlandaise",
+      "regime_alimentaire": "Omnivore"
+    },
+    {
+      "id_plat": 4,
+      "id_cuisinier": 4,
+      "nom_plat": "G\u00E2teau au chocolat",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 6.50,
+      "nationalite": "Fran\u00E7aise",
+      "regime_alimentaire": "V\u00E9g\u00E9tarien"
+    },
+    {
+      "id_plat": 5,
+      "id_cuisinier": 4,
+      "nom_plat": "P\u00E2tes carbonara",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 10.50,
+      "nationalite": "Italienne",
+      "regime_alimentaire": "Omnivore"
+    },
+    {
+      "id_plat": 6,
+      "id_cuisinier": 6,
+      "nom_plat": "Omelette aux lardons",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 9.50,
+      "nationalite": "Fran\u00E7aise",
+      "regime_alimentaire": "Omnivore"
+    },
+    {
+      "id_plat": 7,
+      "id_cuisinier": 8,
+      "nom_plat": "Tartes aux pommes",
+      "date_fabrication": "2025-04-01T00:00:00",
+      "prix_plat": 8.50,
+      "nationalite": "Fran\u00E7aise",
+      "regime_alimentaire": "V\u00E9g\u00E9tarien"
+    }
+  ],
+  "platingredients": [
+    {
+      "id_plat": 1,
+      "id_ingredient": 1
+    },
+    {
+      "id_plat": 1,
+      "id_ingredient": 3
+    },
+    {
+      "id_plat": 5,
+      "id_ingredient": 3
+    },
+    {
+      "id_plat": 1,
+      "id_ingredient": 4
+    },
+    {
+      "id_plat": 5,
+      "id_ingredient": 4
+    },
+    {
+      "id_plat": 1,
+      "id_ingredient": 5
+    },
+    {
+      "id_plat": 2,
+      "id_ingredient": 5
+    },
+    {
+      "id_plat": 3,
+      "id_ingredient": 5
+    },
+    {
+      "id_plat": 5,
+      "id_ingredient": 5
+    },
+    {
+      "id_plat": 2,
+      "id_ingredient": 7
+    },
+    {
+      "id_plat": 2,
+      "id_ingredient": 8
+    },
+    {
+      "id_plat": 4,
+      "id_ingredient": 8
+    },
+    {
+      "id_plat": 3,
+      "id_ingredient": 9
+    },
+    {
+      "id_plat": 5,
+      "id_ingredient": 10
+    },
+    {
+      "id_plat": 6,
+      "id_ingredient": 10
+    },
+    {
+      "id_plat": 4,
+      "id_ingredient": 11
+    },
+    {
+      "id_plat": 6,
+      "id_ingredient": 11
+    },
+    {
+      "id_plat": 7,
+      "id_ingredient": 11
+    },
+    {
+      "id_plat": 4,
+      "id_ingredient": 12
+    },
+    {
+      "id_plat": 6,
+      "id_ingredient": 12
+    },
+    {
+      "id_plat": 4,
+      "id_ingredient": 13
+    },
+    {
+      "id_plat": 7,
+      "id_ingredient": 13
+    },
+    {
+      "id_plat": 7,
+      "id_ingredient": 14
+    }
+  ],
+  "utilisateur": [
+    {
+      "id_utilisateur": 1,
+      "prenom": "Alice",
+      "nom": "Durand",
+      "coordonnees_geographiques": "AAAAAAEBAAAAqDXNO07RAkB24JwRpW1IQA==",
+      "email": "alice.durand@example.com",
+      "mdp": "mdp123",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Particulier"
+    },
+    {
+      "id_utilisateur": 2,
+      "prenom": "Bob",
+      "nom": "Martin",
+      "coordonnees_geographiques": "AAAAAAEBAAAABaOSOgFNAkBmZmZmZm5IQA==",
+      "email": "bob.martin@example.com",
+      "mdp": "mdp456",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Entreprise"
+    },
+    {
+      "id_utilisateur": 3,
+      "prenom": "Clara",
+      "nom": "Lemoine",
+      "coordonnees_geographiques": "AAAAAAEBAAAAGlHaG3zhAkB3vp8aL21IQA==",
+      "email": "clara.lemoine@example.com",
+      "mdp": "mdp789",
+      "est_client": true,
+      "est_cuisinier": true,
+      "type_client": "Particulier"
+    },
+    {
+      "id_utilisateur": 4,
+      "prenom": "David",
+      "nom": "Bernard",
+      "coordonnees_geographiques": "AAAAAAEBAAAAXI/C9ShcAkBWn6ut2G9IQA==",
+      "email": "david.bernard@example.com",
+      "mdp": "pass001",
+      "est_client": false,
+      "est_cuisinier": true,
+      "type_client": {}
+    },
+    {
+      "id_utilisateur": 5,
+      "prenom": "Emma",
+      "nom": "Morel",
+      "coordonnees_geographiques": "AAAAAAEBAAAAhetRuB4FA0B5WKg1zWtIQA==",
+      "email": "emma.morel@example.com",
+      "mdp": "pass002",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Entreprise"
+    },
+    {
+      "id_utilisateur": 6,
+      "prenom": "Fabien",
+      "nom": "Roux",
+      "coordonnees_geographiques": "AAAAAAEBAAAApHA9CtejAkCPwvUoXG9IQA==",
+      "email": "fabien.roux@example.com",
+      "mdp": "pass003",
+      "est_client": false,
+      "est_cuisinier": true,
+      "type_client": {}
+    },
+    {
+      "id_utilisateur": 7,
+      "prenom": "Claire",
+      "nom": "Dupont",
+      "coordonnees_geographiques": "AAAAAAEBAAAA7Q2+MJmqAkCuR+F6FG5IQA==",
+      "email": "claire.dupont@example.com",
+      "mdp": "mdp123",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Particulier"
+    },
+    {
+      "id_utilisateur": 8,
+      "prenom": "Julien",
+      "nom": "Martin",
+      "coordonnees_geographiques": "AAAAAAEBAAAAuB6F61G4AkCPwvUoXG9IQA==",
+      "email": "julien.martin@example.com",
+      "mdp": "mdp456",
+      "est_client": true,
+      "est_cuisinier": true,
+      "type_client": "Entreprise"
+    },
+    {
+      "id_utilisateur": 9,
+      "prenom": "Sophie",
+      "nom": "Bernard",
+      "coordonnees_geographiques": "AAAAAAEBAAAA9ihcj8L1AkDNzMzMzGxIQA==",
+      "email": "sophie.bernard@example.com",
+      "mdp": "mdp789",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Particulier"
+    },
+    {
+      "id_utilisateur": 10,
+      "prenom": "Lucas",
+      "nom": "Moreau",
+      "coordonnees_geographiques": "AAAAAAEBAAAAexSuR+F6AkAfhetRuG5IQA==",
+      "email": "lucas.moreau@example.com",
+      "mdp": "mdp321",
+      "est_client": true,
+      "est_cuisinier": true,
+      "type_client": "Entreprise"
+    },
+    {
+      "id_utilisateur": 11,
+      "prenom": "Emma",
+      "nom": "Leroy",
+      "coordonnees_geographiques": "AAAAAAEBAAAA16NwPQrXAkDsUbgehWtIQA==",
+      "email": "emma.leroy@example.com",
+      "mdp": "mdp654",
+      "est_client": true,
+      "est_cuisinier": false,
+      "type_client": "Particulier"
+    },
+    {
+      "id_utilisateur": 12,
+      "prenom": "Alexandre",
+      "nom": "DUFORET",
+      "coordonnees_geographiques": "AAAAAAEBAAAABaOSOgFNAkBmZmZmZm5IQA==",
+      "email": "alexandre.duforet@edu.devinci.fr",
+      "mdp": "vroum",
+      "est_client": true,
+      "est_cuisinier": true,
+      "type_client": "Particulier"
+    }
+  ]
+}
