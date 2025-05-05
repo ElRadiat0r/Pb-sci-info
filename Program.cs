@@ -572,9 +572,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int numLigne = -1;
             int numStation = -1;
 
-            int[,] matriceMetro = creationMatriceCSV(graphe);
-            GenererImageGraphe(graphe);
-
             ///choix adresse de départ
             while (numLigne <= 0 || numLigne > 14)
             {
