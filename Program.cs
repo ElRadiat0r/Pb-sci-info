@@ -2058,7 +2058,57 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
-
+             static void XMLExport(MySqlConnection Connection, string FileName)
+             {
+                 try
+                 {
+                     XElement databaseElement = new XElement("Database");
+                     List<string> TablesNames = new List<string>();
+                     string Instruction = "SHOW TABLES;";
+                     MySqlCommand Command = new MySqlCommand(Instruction, Connection);
+                     MySqlDataReader reader = Command.ExecuteReader();
+                     while (reader.Read())
+                     {
+                         TablesNames.Add(reader.GetString(0));
+                     }
+                     reader.Close();
+ 
+                     foreach (string TableByTable in TablesNames)
+                     {
+                         XElement tableElement = new XElement(TableByTable);
+                         string InstructionLignes = $"SELECT * FROM {TableByTable};";
+                         MySqlCommand CommandLignes = new MySqlCommand(InstructionLignes, Connection);
+                         MySqlDataReader readerLignes = CommandLignes.ExecuteReader();
+                         while (readerLignes.Read())
+                         {
+                             XElement rowElement = new XElement("Row");
+                             for (int i = 0; i < readerLignes.FieldCount; i++)
+                             {
+                                 string ColonneName = readerLignes.GetName(i);
+                                 object valeur;
+                                 if (readerLignes.IsDBNull(i))
+                                 {
+                                     valeur = null;
+                                 }
+                                 else
+                                 {
+                                     valeur = readerLignes.GetValue(i);
+                                 }
+                                 rowElement.Add(new XElement(ColonneName, valeur));
+                             }
+                             tableElement.Add(rowElement);
+                         }
+                         databaseElement.Add(tableElement);
+                         readerLignes.Close();
+                     }
+                     databaseElement.Save(FileName);
+                     Console.WriteLine($"Export XML terminé ! Fichier : {FileName}");
+                 }
+                 catch (Exception ex)
+                 {
+                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
+                 }
+             }
         }
     }
 }
