@@ -38,15 +38,16 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {0,0,0},
                 {0,-6,0}
             };
-
+        
             int depart = 0;
             int arrivee = 1;
-
-            var chemin = Program.BellmanFord(depart, arrivee, matrice);
-            var attendu = new List<int> { 0, 2, 1 };
-
-            Assert.Equals(attendu, chemin);
+        
+            List<int> chemin = Program.BellmanFord(depart, arrivee, matrice);
+            List<int> attendu = new List<int> { 0, 2, 1 };
+        
+            Assert.AreEqual(attendu, chemin);
         }
+                   
 
         [TestMethod]
         public void connexité()
