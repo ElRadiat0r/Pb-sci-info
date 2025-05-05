@@ -449,7 +449,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             var precedent = new Dictionary<int, int>();
             var nonVisites = new HashSet<int>();
 
-            // Initialisation
+            /// Initialisation
             foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
                 distances[noeud.ID] = int.MaxValue;
@@ -460,12 +460,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while (nonVisites.Count > 0)
             {
-                // Sélectionne le noeud non visité avec la distance minimale
+                /// Sélectionne le noeud non visité avec la distance minimale
                 int courant = nonVisites.OrderBy(n => distances[n]).First();
 
                 nonVisites.Remove(courant);
 
-                // Pour tous les voisins connectés à courant via un lien
+                /// Pour tous les voisins connectés à courant via un lien
                 foreach (var lien in graphe.AllLinks)
                 {
                     if (lien.stationId == 0) continue;
@@ -473,20 +473,32 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     var voisins = new List<int>();
 
                     if (lien.startingNode == courant && lien.stationId != 0)
+                    {
                         voisins.Add(lien.stationId);
+
+                    }
                     if (lien.endingNode == courant && lien.stationId != 0)
+                    {
                         voisins.Add(lien.stationId);
+                    }
                     if (lien.stationId == courant)
                     {
                         if (lien.startingNode != 0)
+                        {
                             voisins.Add(lien.startingNode);
+                        }
                         if (lien.endingNode != 0)
+                        {
                             voisins.Add(lien.endingNode);
+                        }
                     }
 
                     foreach (int voisin in voisins)
                     {
-                        if (!nonVisites.Contains(voisin)) continue;
+                        if (!nonVisites.Contains(voisin)) 
+                        {
+                            continue;
+                        }
 
                         int alt = distances[courant] + lien.tripValue;
                         if (alt < distances[voisin])
@@ -498,18 +510,19 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 }
             }
 
-            // Reconstruction du chemin
+            /// Reconstruction du chemin
             var chemin = new List<int>();
             int node = arrivee;
 
-            while (node != -1)
+            while (precedent.ContainsKey(node))
             {
                 chemin.Insert(0, node);
-                node = precedent.ContainsKey(node) ? precedent[node] : -1;
+                node = precedent[node];
             }
+            chemin.Insert(0, node);
 
             if (chemin.First() != depart)
-                return new List<int>(); // Aucun chemin trouvé
+                return new List<int>(); /// Aucun chemin trouvé
 
             return chemin;
         }
@@ -618,7 +631,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void livraison(Graphe graphe)
         {
-
             List<Noeud> listeStations = new List<Noeud>();
             int arrivee = 0;
             int depart = 0;
