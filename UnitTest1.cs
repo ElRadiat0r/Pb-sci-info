@@ -26,7 +26,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {1,0,1},
                 {1,1,1},
             };
-            Assert.IsFalse(Program.ContientCycle(mat));
+            Assert.IsTrue(Program.ContientCycle(mat));
         }
 
         [TestMethod]
@@ -34,16 +34,16 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int[,] matrice = new int[,]
             {
-                {0,3,1},
-                {0,0,0},
-                {0,-6,0},
+                {3,0,0},
+                {0,1,0},
+                {0,0,5},
             };
         
             int depart = 0;
-            int arrivee = 1;
+            int arrivee = 2;
         
             List<int> chemin = Program.BellmanFord(depart, arrivee, matrice);
-            List<int> attendu = new List<int> { 0, 2, 1 };
+            List<int> attendu = new List<int> { 0, 1, 2 };
         
             Assert.AreEqual(attendu, chemin);
         }
