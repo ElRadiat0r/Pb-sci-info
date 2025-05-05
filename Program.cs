@@ -648,7 +648,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
             Console.WriteLine("choix de la station : entrez le numéro de la station : ");
             numStation = Convert.ToInt32(Console.ReadLine());
-            for (int i = 0; i < listeStations.Count; i++)
+            for (int i = 0; i < graphe.AllNodes.Count; i++)
             {
                 if (graphe.AllNodes[i].NodeID == numStation)
                 {
@@ -2135,7 +2135,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
-
         }
     }
 }
