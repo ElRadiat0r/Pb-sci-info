@@ -48,7 +48,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             Assert.AreEqual(3, attendu.Count);
             Assert.AreEqual(0, attendu[0]);
             Assert.AreEqual(2, attendu[1]);
-            Assert.AreEqual(1,resultat[2]);
+            Assert.AreEqual(1, attendu[2]);
         }
                    
 
