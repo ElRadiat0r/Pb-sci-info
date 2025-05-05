@@ -49,7 +49,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
 
         [TestMethod]
-        public void connexité()
+        public void connexitÃ©()
         {
             int[,] mat = new int[,]
             {
@@ -61,6 +61,18 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             Assert.IsTrue(Program.estConnexe(mat));
         }
 
-
+         [TestMethod]
+         public void Parcourslargeurtest()
+         {
+             int[,] mat = new int[,]
+             {
+                 {1,2,0,3},
+                 {1,2,3,4},
+                 {0,0,1,0},
+                 {0,1,0,2}
+             };
+             int result = Program.parcoursLargeur(mat, 1);
+             Assert.AreEqual(4, result);
+         }
     }
 }
