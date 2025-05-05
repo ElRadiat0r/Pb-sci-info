@@ -24,7 +24,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             {
                 {1,1,1},
                 {1,0,1},
-                {1,1,1}
+                {1,1,1},
             };
             Assert.IsFalse(Program.ContientCycle(mat));
         }
@@ -36,7 +36,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             {
                 {0,3,1},
                 {0,0,0},
-                {0,-6,0}
+                {0,-6,0},
             };
         
             int depart = 0;
@@ -70,7 +70,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                  {1,2,0,3},
                  {1,2,3,4},
                  {0,0,1,0},
-                 {0,1,0,2}
+                 {0,1,0,2},
              };
              int result = Program.parcoursLargeur(mat, 1);
              Assert.AreEqual(4, result);
