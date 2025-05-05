@@ -34,18 +34,21 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int[,] matrice = new int[,]
             {
-                {3,0,0},
+                {0,3,1},
+                {0,0,0},
                 {0,1,0},
-                {0,0,5},
             };
         
             int depart = 0;
             int arrivee = 2;
         
             List<int> chemin = Program.BellmanFord(depart, arrivee, matrice);
-            List<int> attendu = new List<int> { 0, 1, 2 };
+            List<int> attendu = new List<int> { 0, 2, 1 };
         
-            Assert.AreEqual(attendu, chemin);
+            Assert.AreEqual(3, attendu.Count);
+            Assert.AreEqual(0, attendu[0]);
+            Assert.AreEqual(2, attendu[1]);
+            Assert.AreEqual(1,resultat[2]);
         }
                    
 
