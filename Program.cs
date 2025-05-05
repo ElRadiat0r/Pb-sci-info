@@ -13,6 +13,7 @@ using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 using System.Text.Json;
 using Google.Protobuf.WellKnownTypes;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
 
 namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 {
@@ -20,24 +21,24 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
     {
         public static int[,] creationMatriceMtx(string chemin)
         {
-            ///création d'une matrice d'adjacence à partir d'un fichier de type .mtx
+            // création d'une matrice d'adjacence à partir d'un fichier de type .mtx
             int[,]? matriceUsers = null;
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
-            string[] header = ligne.Split(" "); ///le header est la première ligne du fichier .mtx
+            string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
 
-            if (header[2] == "coordinate") /// on vérfie que le format est coordinate
+            if (header[2] == "coordinate") // on vérfie que le format est coordinate
             {
                 Console.WriteLine("format = coordinate");
                 while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)///chaque comment lines commence par un % donc on ne passe pas dessus
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)//chaque comment lines commence par un % donc on ne passe pas dessus
                     {
-                        string[] tabline = ligne.Split(' '); /// on convertit chaque ligne dans un tableau pour avoir les données séparées
+                        string[] tabline = ligne.Split(' '); // on convertit chaque ligne dans un tableau pour avoir les données séparées
                         if (tabline.Length == 3) /// la ligne size ligne est de forme m n nonzeros avec m le nombre de ligne et n le nombre de colonnes
                         {
                             Console.WriteLine("Size Line = " + ligne);
-                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; ///On créer une matrice des dimensions précisées dans la size line.
+                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; //On créer une matrice des dimensions précisées dans la size line.
                         }
                     }
                 }
@@ -114,6 +115,60 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             return matrice;
         }
+        public static int[,] creationMatriceJson(string cheminFichier)
+        {
+            string json = File.ReadAllText(cheminFichier);
+            JObject root = JObject.Parse(json);
+            var utilisateurs = root["utilisateur"];
+            var commandes = root["commande"];
+            var ligneCommandes = root["lignecommande"];
+
+            Dictionary<int, int> idVersIndex = new();
+            int index = 0;
+
+            // Créer un dictionnaire d'index des utilisateurs
+            foreach (var utilisateur in utilisateurs)
+            {
+                int id = (int)utilisateur["id_utilisateur"];
+                if (!idVersIndex.ContainsKey(id))
+                {
+                    idVersIndex[id] = index++;
+                }
+            }
+
+            int n = idVersIndex.Count;
+            int[,] matrice = new int[n, n];
+
+            // Associer les commandes aux plats et aux utilisateurs
+            foreach (var ligneCommande in ligneCommandes)
+            {
+                int idCommande = (int)ligneCommande["id_commande"];
+                int idPlat = (int)ligneCommande["id_plat"];
+                int quantite = (int)ligneCommande["quantite"];
+
+                // Trouver les id_client et id_cuisinier associés au plat
+                var plat = root["plat"].FirstOrDefault(p => (int)p["id_plat"] == idPlat);
+                if (plat != null)
+                {
+                    int cuisinierId = (int)plat["id_cuisinier"];
+                    var commande = commandes.FirstOrDefault(c => (int)c["id_commande"] == idCommande);
+                    if (commande != null)
+                    {
+                        int clientId = (int)commande["id_client"];
+
+                        // Si les utilisateurs existent dans le dictionnaire, mettre à jour la matrice
+                        if (idVersIndex.ContainsKey(clientId) && idVersIndex.ContainsKey(cuisinierId))
+                        {
+                            int i = idVersIndex[clientId];
+                            int j = idVersIndex[cuisinierId];
+                            matrice[i, j] += quantite;
+                        }
+                    }
+                }
+            }
+
+            return matrice;
+        }
         public static Dictionary<int, List<int>> creationListeAdjacence(string chemin)
         {
             var adjacencyList = new Dictionary<int, List<int>>();
@@ -121,18 +176,18 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
-            string[] header = ligne.Split(" "); ///le header est la première ligne du fichier .mtx
+            string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
 
-            if (header[2] == "coordinate") /// on vérfie que le format est coordinate
+            if (header[2] == "coordinate") // on vérfie que le format est coordinate
             {
                 while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)///chaque comment lines commence par un % donc on ne passe pas dessus
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)//chaque comment lines commence par un % donc on ne passe pas dessus
                     {
-                        string[] tabline = ligne.Split(' '); ///on convertit chaque ligne dans un tableau pour avoir les données séparées
+                        string[] tabline = ligne.Split(' '); // on convertit chaque ligne dans un tableau pour avoir les données séparées
                         if (tabline.Length == 3) /// la ligne size ligne est de forme m n nonzeros avec m le nombre de ligne et n le nombre de colonnes
                         {
-                            noeuds = int.Parse(tabline[0]); ///le nombre de noeuds
+                            noeuds = int.Parse(tabline[0]); // le nombre de noeuds
                             break;
                         }
                     }
@@ -146,16 +201,16 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while ((ligne = lecteur.ReadLine()) != null)
             {
-                if (ligne.Length > 0 && ligne[0] != '%') /// Encore pour ignorer les commentaires
+                if (ligne.Length > 0 && ligne[0] != '%') // Encore pour ignorer les commentaires
                 {
                     string[] tabline = ligne.Split(' ');
-                    if (tabline.Length >= 2) /// Vérifier qu'on a bien des données
+                    if (tabline.Length >= 2) // Vérifier qu'on a bien des données
                     {
                         int u = int.Parse(tabline[0]);
                         int v = int.Parse(tabline[1]);
 
                         adjacencyList[u].Add(v);
-                        adjacencyList[v].Add(u); ///Graphe non orienté
+                        adjacencyList[v].Add(u); // Graphe non orienté
                     }
                 }
             }
@@ -163,7 +218,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void affichageMatrice(int[,] matrice)
         {
-            ///affichage de la matrice
+            //affichage de la matrice
             for (int i = 0; i < matrice.GetLength(0); i++)
             {
                 for (int ii = 0; ii < matrice.GetLength(1); ii++)
@@ -186,7 +241,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
-            Pile pile = new Pile(); ///j'ai créer une classe pile avant de me rendre compte que Stack<T> existe
+            Pile pile = new Pile(); // j'ai créer une classe pile avant de me rendre compte que Stack<T> existe
 
             int result = DFS(depart, matrice, visite, pile, 0, affichage);
             return result;
@@ -207,7 +262,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 if (matrice[sommet, i] == 1 && !visite[i])
                 {
                     pile.add(i);
-                    c = DFS(i, matrice, visite, pile, c, affichage); /// appel récursif (on incrémente le compteur, il va servir pour estConnexe
+                    c = DFS(i, matrice, visite, pile, c, affichage); // appel récursif (on incrémente le compteur, il va servir pour estConnexe
                     pile.remove();
                 }
             }
@@ -217,7 +272,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         {
             int n = matrice.GetLength(0);
             int c = 0;
-            bool[] visite = new bool[n]; ///tableau des noeuds déjà visités
+            bool[] visite = new bool[n]; // tableau des noeuds déjà visités
             Queue<int> file = new Queue<int>();
 
             visite[depart] = true;
@@ -246,7 +301,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             dot.AppendLine("graph G {");
             dot.AppendLine("    node [shape=circle, style=filled, fillcolor=white, fontname=\"Arial\"];");
 
-            ///1. Affichage des noeuds : ID dans le rond, nom à côté
+            // 1. Affichage des noeuds : ID dans le rond, nom à côté
             foreach (var node in graphe.AllNodes)
             {
                 if (node.ID == 0) continue; // Ignore le noeud 0
@@ -256,7 +311,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 dot.AppendLine($"    {node.ID} -- label_{node.ID} [style=invis];");
             }
 
-            ///2. Gestion des couleurs par ligne
+            // 2. Gestion des couleurs par ligne
             Dictionary<int, string> couleurParLigne = new();
             string[] palette = { "red", "blue", "green", "orange", "purple", "brown", "cyan", "magenta", "gray", "pink" };
             int couleurIndex = 0;
@@ -291,7 +346,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
                     int ligne = noeud.libelleLigne.First(); // ou autre stratégie si plusieurs lignes
 
-                    /// Couleur pour cette ligne
+                    // Couleur pour cette ligne
                     if (!couleurParLigne.ContainsKey(ligne))
                     {
                         couleurParLigne[ligne] = palette[couleurIndex % palette.Length];
@@ -307,11 +362,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             dot.AppendLine("}");
 
-            ///3. Écriture fichier .dot
+            // 3. Écriture fichier .dot
             string dotPath = "graphe.dot";
             File.WriteAllText(dotPath, dot.ToString());
 
-            /// 4. Génération image PNG avec Graphviz
+            // 4. Génération image PNG avec Graphviz
             string imagePath = "graphe.png";
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -354,7 +409,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
 
-            /// On parcourt tous les sommets pour vérifier s'il y a des cycles
+            // On parcourt tous les sommets pour vérifier s'il y a des cycles
             for (int i = 0; i < n; i++)
             {
                 if (!visite[i] && RechercheCycle(i, matrice, visite, -1)) // Le -1 représente l'absence de parent pour le sommet initial
@@ -381,7 +436,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                     else if (i != parent)
                     {
-                        ///le cas ou le sommet n'a pas été visité et n'est pas parent immédiat, on a un cycle.
+                        //le cas ou le sommet n'a pas été visité et n'est pas parent immédiat, on a un cycle.
                         return true;
                     }
                 }
@@ -394,7 +449,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             var precedent = new Dictionary<int, int>();
             var nonVisites = new HashSet<int>();
 
-            /// Initialisation
+            // Initialisation
             foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
                 distances[noeud.ID] = int.MaxValue;
@@ -405,12 +460,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while (nonVisites.Count > 0)
             {
-                ///Sélectionne le noeud non visité avec la distance minimale
+                // Sélectionne le noeud non visité avec la distance minimale
                 int courant = nonVisites.OrderBy(n => distances[n]).First();
 
                 nonVisites.Remove(courant);
 
-                /// Pour tous les voisins connectés à courant via un lien
+                // Pour tous les voisins connectés à courant via un lien
                 foreach (var lien in graphe.AllLinks)
                 {
                     if (lien.stationId == 0) continue;
@@ -443,7 +498,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 }
             }
 
-            /// Reconstruction du chemin
+            // Reconstruction du chemin
             var chemin = new List<int>();
             int node = arrivee;
 
@@ -649,157 +704,123 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 Console.WriteLine("Station n° " + i + " est la station d'ID : " + cheminLePLusCourt[i]);
             }
         }
-        public static void ColorationWelshPowell(Graphe graphe)
+        public static void ColorationWelshPowell(int[,] matriceUtilisateurs)
         {
-            
-            var noeuds = graphe.AllNodes.Where(n => n.ID != 0).ToList();
-            int n = noeuds.Count;
+            int n = matriceUtilisateurs.GetLength(0);
+            int[] degres = new int[n];
 
-            Dictionary<int, int> degres = noeuds.ToDictionary(n => n.ID, id => 0);
-            foreach (var lien in graphe.AllLinks)
+            // Calcul des degrés
+            for (int i = 0; i < n; i++)
             {
-                if (lien.startingNode == 0 || lien.endingNode == 0) continue;
-                degres[lien.startingNode]++;
-                degres[lien.endingNode]++;
+                int deg = 0;
+                for (int j = 0; j < n; j++)
+                    if (matriceUtilisateurs[i, j] != 0)
+                        deg++;
+                degres[i] = deg;
             }
 
-            
-            var noeudsTries = degres.OrderByDescending(kvp => kvp.Value).Select(kvp => kvp.Key).ToList();
-
-            
-            Dictionary<int, int> couleurParSommet = new();
-
-            int couleur = 1;
-            while (couleurParSommet.Count < n)
-            {
-                HashSet<int> dejaColoriesCetteCouleur = new();
-
-                foreach (int sommet in noeudsTries)
-                {
-                    if (couleurParSommet.ContainsKey(sommet)) continue;
-
-                    bool peutColorier = true;
-                    foreach (var lien in graphe.AllLinks)
-                    {
-                        if (lien.startingNode == 0 || lien.endingNode == 0) continue;
-
-                        if ((lien.startingNode == sommet && couleurParSommet.TryGetValue(lien.endingNode, out int c) && c == couleur) ||
-                            (lien.endingNode == sommet && couleurParSommet.TryGetValue(lien.startingNode, out int c2) && c2 == couleur))
-                        {
-                            peutColorier = false;
-                            break;
-                        }
-                    }
-
-                    if (peutColorier)
-                    {
-                        couleurParSommet[sommet] = couleur;
-                        dejaColoriesCetteCouleur.Add(sommet);
-                    }
-                }
-
-                couleur++;
-            }
-
-            int nbCouleurs = couleur - 1;
-
-            ///Affichage des résultats
-            Console.WriteLine($"Nombre minimal de couleurs nécessaires : {nbCouleurs}");
-
-            /// Bipartition
-            Console.WriteLine(nbCouleurs == 2
-                ? "Le graphe est biparti."
-                : "Le graphe n'est pas biparti.");
-
-            /// Planarité (test simplifié pour graphe simple connexe)
-            int S = noeuds.Count;
-            int A = graphe.AllLinks.Count;
-            bool estPlanaire = A <= 3 * S - 6;
-            Console.WriteLine(estPlanaire
-                ? "Le graphe est probablement planaire (selon la borne d'Euler)."
-                : "Le graphe n'est pas planaire selon la borne d'Euler.");
-
-            /// Groupes indépendants (par couleur)
-            var groupes = couleurParSommet
-                .GroupBy(kvp => kvp.Value)
-                .ToDictionary(g => g.Key, g => g.Select(kvp => kvp.Key).ToList());
-
-            Console.WriteLine("\nGroupes indépendants (sommets avec même couleur) :");
-            foreach (var groupe in groupes.OrderBy(g => g.Key))
-            {
-                Console.WriteLine($"Couleur {groupe.Key} : {{ {string.Join(", ", groupe.Value)} }}");
-            }
-        }
-        public static List<Lien> ChuLiuEdmonds(Graphe graphe, int racine, List<int> stationsCibles)
-        {
-            var noeuds = graphe.AllNodes.Where(n => n.ID != 0).Select(n => n.ID).ToHashSet();
-            var liensUtilisables = graphe.AllLinks
-                .Where(l => l.stationId != 0 && l.startingNode != 0 && l.endingNode != 0)
+            // Trie des sommets par degré décroissant
+            List<int> sommets = Enumerable.Range(0, n)
+                .OrderByDescending(i => degres[i])
                 .ToList();
 
-            /// Création de tous les arcs orientés : startingNode → stationId, stationId → endingNode
-            var arcs = new List<(int from, int to, int poids, Lien lienOriginal)>();
-            foreach (var l in liensUtilisables)
-            {
-                arcs.Add((l.startingNode, l.stationId, l.tripValue, l));
-                arcs.Add((l.stationId, l.endingNode, l.tripValue, l));
-            }
+            int[] couleurs = new int[n]; // 0 = non coloré
+            int couleurActuelle = 1;
 
-            /// Arcs entrants minimaux pour chaque noeud (hors racine)
-            var parents = new Dictionary<int, (int from, int poids, Lien lienOriginal)>();
-            foreach (int noeud in stationsCibles)
+            while (sommets.Any(i => couleurs[i] == 0))
             {
-                if (noeud == racine) continue;
-                var arcsEntrants = arcs.Where(a => a.to == noeud && a.from != noeud).ToList();
-                if (arcsEntrants.Count == 0) continue;
-                var arcMin = arcsEntrants.OrderBy(a => a.poids).First();
-
-                parents[noeud] = (arcMin.from, arcMin.poids, arcMin.lienOriginal);
-            }
-
-            /// Détection de cycles (simplifié)
-            var cycleTrouvé = false;
-            var visités = new HashSet<int>();
-            foreach (var noeud in parents.Keys)
-            {
-                visités.Clear();
-                int courant = noeud;
-                while (parents.ContainsKey(courant))
+                foreach (int sommet in sommets)
                 {
-                    if (!visités.Add(courant))
+                    if (couleurs[sommet] == 0)
                     {
-                        cycleTrouvé = true;
-                        break;
+                        bool peutColorer = true;
+
+                        for (int i = 0; i < n; i++)
+                        {
+                            if (matriceUtilisateurs[sommet, i] != 0 || matriceUtilisateurs[i, sommet] != 0)
+                            {
+                                if (couleurs[i] == couleurActuelle)
+                                {
+                                    peutColorer = false;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (peutColorer)
+                            couleurs[sommet] = couleurActuelle;
                     }
-                    courant = parents[courant].from;
                 }
-                if (cycleTrouvé) break;
+
+                couleurActuelle++;
             }
 
-            if (cycleTrouvé)
+            int nbCouleurs = couleurs.Max();
+            Console.WriteLine($"Nombre de couleurs minimales nécessaires : {nbCouleurs}");
+
+            // Vérifie si biparti : 2 couleurs suffisent
+            Console.WriteLine(nbCouleurs == 2 ? "Le graphe est biparti." : "Le graphe n'est pas biparti.");
+
+            // Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
+            int nbSommets = n;
+            int nbArêtes = 0;
+
+            for (int i = 0; i < n; i++)
+                for (int j = i + 1; j < n; j++)
+                    if (matriceUtilisateurs[i, j] != 0 || matriceUtilisateurs[j, i] != 0)
+                        nbArêtes++;
+
+            bool planaire = nbArêtes <= (3 * nbSommets - 6);
+            Console.WriteLine(planaire ? "Le graphe est planaire." : "Le graphe n'est pas planaire.");
+
+            // Affiche les groupes indépendants
+            Console.WriteLine("\nGroupes indépendants (même couleur, aucun lien entre eux) :");
+            for (int c = 1; c <= nbCouleurs; c++)
             {
-                Console.WriteLine("Cycle détecté. Version complète de Chu-Liu/Edmonds requise.");
-                return new List<Lien>();
+                var groupe = Enumerable.Range(0, n).Where(i => couleurs[i] == c).ToList();
+                Console.WriteLine($"Couleur {c} : " + string.Join(", ", groupe));
             }
-
-            var result = parents.Values.Select(p => p.lienOriginal).Distinct().ToList();
-
-            ///Affichage des résultats
-            Console.WriteLine("\nArborescence couvrante minimale trouvée :\n");
-            foreach (var lien in result)
-            {
-                string nom1 = graphe.AllNodes.FirstOrDefault(n => n.ID == lien.startingNode)?.libelleStation ?? "Inconnu";
-                string nom2 = graphe.AllNodes.FirstOrDefault(n => n.ID == lien.endingNode)?.libelleStation ?? "Inconnu";
-                Console.WriteLine($"- {lien.startingNode} ({nom1}) <-> {lien.endingNode} ({nom2}) | Poids : {lien.tripValue}");
-            }
-            return result;
         }
+        public static List<int> ChuLiuEdmonds(int[,] matriceUtilisateurs, int racine)
+        {
+            int n = matriceUtilisateurs.GetLength(0);
+            List<int> utilisateursInclus = new List<int>();
 
+            for (int j = 0; j < n; j++)
+            {
+                if (j == racine) continue;
+
+                int minSource = -1;
+                int minCout = int.MaxValue;
+
+                for (int i = 0; i < n; i++)
+                {
+                    if (i == j) continue;
+                    int cout = matriceUtilisateurs[i, j];
+
+                    if (cout < minCout)
+                    {
+                        minCout = cout;
+                        minSource = i;
+                    }
+                }
+
+                if (minSource != -1 && minCout != int.MaxValue)
+                {
+                    utilisateursInclus.Add(j);
+                }
+            }
+
+            utilisateursInclus.Add(racine);
+
+            return utilisateursInclus;
+        }
 
 
 
         static void Main(string[] args)
         {
+            
             string mdp = "8Q88445Q";
             string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=livinparis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
@@ -1456,6 +1477,21 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 {
                     Console.WriteLine("ID invalide.");
                 }
+
+                Console.WriteLine("Appuyez sur une touche pour continuer...");
+                Console.ReadKey();
+                Console.Clear();
+
+                Console.WriteLine("graphe clients -- cuisiniers : ");
+                int[,] matriceUtilisateurs = creationMatriceJson("JsonExportBDD.json");
+                affichageMatrice(matriceUtilisateurs);
+                Console.WriteLine();
+                Console.WriteLine("algo de Chu-Liu Edmonds donnant l'arborescance couvrante de poids minimum : ");
+                List<int> result = ChuLiuEdmonds(matriceUtilisateurs, 3);
+                Console.WriteLine(string.Join(", ", result));
+
+                Console.WriteLine("coloration du graphe : ");
+                ColorationWelshPowell(matriceUtilisateurs);
                 Console.WriteLine("Appuyez sur une touche pour continuer...");
                 Console.ReadKey();
                 Console.Clear();
@@ -1776,9 +1812,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                         // Appel de livraison et génération de graphe
                         Graphe metro = new Graphe("MetroParisNoeuds.csv", "MetroParisArcs.csv");
                         livraison(metro);
-                        //ColorationWelshPowell(metro);
-                        List<int> stationCibles = new List<int> {1, 12, 103, 64, 185, 191, 244, 301, 318, 330};
-                        ChuLiuEdmonds(metro, 119, stationCibles);
                     }
                     else
                     {
@@ -2025,58 +2058,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
-            
-            static void XMLExport(MySqlConnection Connection, string FileName)
-            {
-                try
-                {
-                    XElement databaseElement = new XElement("Database");
-                    List<string> TablesNames = new List<string>();
-                    string Instruction = "SHOW TABLES;";
-                    MySqlCommand Command = new MySqlCommand(Instruction, Connection);
-                    MySqlDataReader reader = Command.ExecuteReader();
-                    while (reader.Read())
-                    {
-                        TablesNames.Add(reader.GetString(0));
-                    }
-                    reader.Close();
-            
-                    foreach (string TableByTable in TablesNames)
-                    {
-                        XElement tableElement = new XElement(TableByTable);
-                        string InstructionLignes = $"SELECT * FROM {TableByTable};";
-                        MySqlCommand CommandLignes = new MySqlCommand(InstructionLignes, Connection);
-                        MySqlDataReader readerLignes = CommandLignes.ExecuteReader();
-                        while (readerLignes.Read())
-                        {
-                            XElement rowElement = new XElement("Row");
-                            for (int i = 0; i < readerLignes.FieldCount; i++)
-                            {
-                                string ColonneName = readerLignes.GetName(i);
-                                object valeur;
-                                if (readerLignes.IsDBNull(i))
-                                {
-                                    valeur = null;
-                                }
-                                else
-                                {
-                                    valeur = readerLignes.GetValue(i);
-                                }
-                                rowElement.Add(new XElement(ColonneName, valeur));
-                            }
-                            tableElement.Add(rowElement);
-                        }
-                        databaseElement.Add(tableElement);
-                        readerLignes.Close();
-                    }
-                    databaseElement.Save(FileName);
-                    Console.WriteLine($"Export JSON terminé ! Fichier : {FileName}");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Erreur lors de l’export : " + ex.Message);
-                }
-            }
+
         }
     }
 }
