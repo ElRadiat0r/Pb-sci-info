@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -840,14 +840,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             return utilisateursInclus;
         }
-
-
-
         static void Main(string[] args)
         {
 
 
-            string mdp = "8Q88445Q";
+            string mdp = "root";
             string PathWayToDatabase = "server=localhost;user=root;password=" + mdp + ";database=livinparis;";
             using (MySqlConnection Connection = new MySqlConnection(PathWayToDatabase))
             {
@@ -863,6 +860,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
+            /// <summary>
+            /// Génère une coordonnée géographique aléatoire située dans les limites de la ville de Paris.
+            /// </summary>
+            /// <returns>
+            /// Une chaîne représentant un point géographique au format "POINT(longitude latitude)".
+            /// </returns>
             static string CoordonneesParis()
             {
                 Random Rand = new Random();
@@ -1080,6 +1083,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                 }
             }
+            /// <summary>
+            /// Affiche un formulaire dans la console pour ajouter un utilisateur, récupère les données saisies,
+            /// génère des coordonnées géographiques aléatoires situées à Paris, et insère l'utilisateur dans la base de données.
+            /// </summary>
             static void AddUser(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1229,6 +1236,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("ID invalide.");
                 }
             }
+            /// <summary>
+            /// Affiche la liste des clients (et non des cuisiniers) triés par nom et prénom dans l'ordre alphabétique,
+            /// avec leurs informations principales : ID, nom, prénom, coordonnées géographiques et email.
+            /// </summary>
             static void InformationsClient(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1639,7 +1650,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 Console.WriteLine();
                 try
                 {
-                    string Instruction = "SELECT p.nom_plat, COUNT(lc.id_plat) AS nb_commandes FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat GROUP BY p.nom_plat ORDER BY nb_commandes DESC LIMIT 10;";
+                    string Instruction = "SELECT p.nom_plat, COUNT(lc.id_plat) AS nb_commandes " +
+                        "FROM LigneCommande lc JOIN Plat p ON lc.id_plat = p.id_plat " +
+                        "GROUP BY p.nom_plat ORDER BY nb_commandes DESC LIMIT 10;";
                     MySqlCommand Command = new MySqlCommand(Instruction, Connection);
                     MySqlDataReader reader = Command.ExecuteReader();
                     while (reader.Read())
@@ -1653,6 +1666,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
+            /// <summary>
+            /// Affiche le chiffre d'affaires réalisé par chaque cuisinier, calculé à partir du total des commandes associées à ses plats.
+            /// Le résultat est trié par chiffre d'affaires décroissant.
+            /// </summary>
             static void CACuisiniers(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1713,6 +1730,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                 }
             }
+            /// <summary>
+            /// Ajoute une commande pour un client existant. La fonction vérifie que l'ID du client correspond à un client (et pas un cuisinier),
+            /// puis permet de sélectionner des plats et de spécifier les quantités. Enfin, elle calcule le montant total de la commande 
+            /// et insère la commande dans la base de données avec les lignes de commande associées.
+            /// </summary>
             static void AddCommande(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -2023,7 +2045,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                             JsonExport(Connection, "JsonExportBDD.json");
                             break;
                         case "2":
-                            Console.WriteLine("Not ready yet...");
+                            XMLExport(Connection, "XMLExportBDD.xml");
                             break;
                         case "0":
                             back = true;
@@ -2039,6 +2061,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                 }
             }
+            /// <summary>
+            /// Exporte l'intégralité de la base de données connectée au format JSON dans un fichier.
+            /// Chaque table est représentée comme une liste de dictionnaires (ligne = dictionnaire de colonnes).
+            /// </summary>
             static void JsonExport(MySqlConnection Connection, string FileName)
             {
                 Dictionary<string, List<Dictionary<string, object>>> AllBDD = new Dictionary<string, List<Dictionary<string, object>>>();
