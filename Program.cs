@@ -324,11 +324,13 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void GenererImageGraphe(Graphe graphe)
         {
+            /// <summary>
+            /// génération d'une image png à partir d'un objet de la classe Graphe
+            /// <\summary>
             StringBuilder dot = new StringBuilder();
             dot.AppendLine("graph G {");
             dot.AppendLine("    node [shape=circle, style=filled, fillcolor=white, fontname=\"Arial\"];");
 
-            // 1. Affichage des noeuds : ID dans le rond, nom à côté
             foreach (var node in graphe.AllNodes)
             {
                 if (node.ID == 0) continue; // Ignore le noeud 0
@@ -337,8 +339,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 dot.AppendLine($"    label_{node.ID} [shape=none, label=\"{node.libelleStation}\", fontsize=10];");
                 dot.AppendLine($"    {node.ID} -- label_{node.ID} [style=invis];");
             }
-
-            // 2. Gestion des couleurs par ligne
             Dictionary<int, string> couleurParLigne = new();
             string[] palette = { "red", "blue", "green", "orange", "purple", "brown", "cyan", "magenta", "gray", "pink" };
             int couleurIndex = 0;
@@ -350,14 +350,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 int a = lien.startingNode;
                 int b = lien.endingNode;
 
-                // Ignorer les liens vers ou depuis le noeud 0
                 if (a == 0 || b == 0) continue;
 
                 string key = a < b ? $"{a}-{b}" : $"{b}-{a}";
 
                 if (!liensTraites.Contains(key))
                 {
-                    // On récupère la ligne associée au noeud de départ (suffisant ici)
                     var noeud = graphe.AllNodes.FirstOrDefault(n => n.ID == a);
                     if (noeud == null)
                     {
@@ -371,9 +369,8 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                         continue;
                     }
 
-                    int ligne = noeud.libelleLigne.First(); // ou autre stratégie si plusieurs lignes
-
-                    // Couleur pour cette ligne
+                    int ligne = noeud.libelleLigne.First();
+                    
                     if (!couleurParLigne.ContainsKey(ligne))
                     {
                         couleurParLigne[ligne] = palette[couleurIndex % palette.Length];
@@ -389,11 +386,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             dot.AppendLine("}");
 
-            // 3. Écriture fichier .dot
+            ///Écriture fichier .dot
             string dotPath = "graphe.dot";
             File.WriteAllText(dotPath, dot.ToString());
 
-            // 4. Génération image PNG avec Graphviz
+            ///Génération image PNG avec Graphviz
             string imagePath = "graphe.png";
             ProcessStartInfo startInfo = new ProcessStartInfo
             {
@@ -419,11 +416,15 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static bool estConnexe(int[,] matrice)
         {
+            /// <summary>
+            /// permet de vérifier si un graphe est connexe
+            /// prend une matrice d'adjacence en paramètre
+            /// <\summary>
             bool resultat = true;
 
             for (int i = 0; i < matrice.GetLength(0); i++)
             {
-                if (parcoursProfondeur(matrice, i, false) != matrice.GetLength(0)) //on fait un dfs depuis chaque noeud et on vérifie qu'il passe par tous les noeuds
+                if (parcoursProfondeur(matrice, i, false) != matrice.GetLength(0)) ///on fait un dfs depuis chaque noeud et on vérifie qu'il passe par tous les noeuds
                 {
                     resultat = false;
                 }
@@ -433,6 +434,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static bool ContientCycle(int[,] matrice)
         {
+            /// <summary>
+            /// permet de vérifier si le graphe contient des cycles
+            /// <\summary>
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
 
