@@ -21,24 +21,24 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
     {
         public static int[,] creationMatriceMtx(string chemin)
         {
-            // création d'une matrice d'adjacence à partir d'un fichier de type .mtx
+            ///création d'une matrice d'adjacence à partir d'un fichier de type .mtx
             int[,]? matriceUsers = null;
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
-            string[] header = ligne.Split(" "); //le header est la première ligne du fichier .mtx
+            string[] header = ligne.Split(" "); 
 
-            if (header[2] == "coordinate") // on vérfie que le format est coordinate
+            if (header[2] == "coordinate") 
             {
                 Console.WriteLine("format = coordinate");
                 while ((ligne = lecteur.ReadLine()) != null)
                 {
-                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)//chaque comment lines commence par un % donc on ne passe pas dessus
+                    if (ligne != null && ligne[0] != '%' && ligne.Length > 0)
                     {
-                        string[] tabline = ligne.Split(' '); // on convertit chaque ligne dans un tableau pour avoir les données séparées
-                        if (tabline.Length == 3) /// la ligne size ligne est de forme m n nonzeros avec m le nombre de ligne et n le nombre de colonnes
+                        string[] tabline = ligne.Split(' '); 
+                        if (tabline.Length == 3) 
                         {
                             Console.WriteLine("Size Line = " + ligne);
-                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; //On créer une matrice des dimensions précisées dans la size line.
+                            matriceUsers = new int[Convert.ToInt32(tabline[0]), Convert.ToInt32(tabline[1])]; 
                         }
                     }
                 }
@@ -79,7 +79,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int[,] creationMatriceCSV(Graphe graphe)
         {
-            // Récupérer les noeuds valides (ID != 0)
+            /// Récupérer les noeuds valides (ID != 0)
             var noeudsValid = graphe.AllNodes
             .Where(n => n.ID != 0)
             .OrderBy(n => n.ID)
@@ -88,20 +88,20 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             int n = noeudsValid.Count;
             int[,] matrice = new int[n, n];
 
-            // Création d'un dictionnaire pour accéder rapidement à l'indice de chaque noeud par son ID
+            ///Création d'un dictionnaire pour accéder rapidement à l'indice de chaque noeud par son ID
             Dictionary<int, int> idToIndex = new();
             for (int i = 0; i < n; i++)
             {
                 idToIndex[noeudsValid[i].ID] = i;
             }
 
-            // Remplissage de la matrice
+            /// Remplissage de la matrice
             foreach (var lien in graphe.AllLinks)
             {
                 int a = lien.startingNode;
                 int b = lien.endingNode;
 
-                // Exclure les liens impliquant le noeud 0
+                /// Exclure les liens impliquant le noeud 0
                 if (a == 0 || b == 0) continue;
 
                 if (idToIndex.ContainsKey(a) && idToIndex.ContainsKey(b))
@@ -109,7 +109,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     int i = idToIndex[a];
                     int j = idToIndex[b];
                     matrice[i, j] = lien.tripValue;
-                    matrice[j, i] = lien.tripValue; // car le graphe des metro est non orienté
+                    matrice[j, i] = lien.tripValue; 
                 }
             }
 
@@ -771,7 +771,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             Console.WriteLine($"Nombre de couleurs minimales nécessaires : {nbCouleurs}");
             Console.WriteLine("Nombre de couleurs minimales nécessaires : " + nbCouleurs);
 
-            // Vérifie si biparti : 2 couleurs suffisent
+            //: Vérifie si biparti : 2 couleurs suffisent
             Console.WriteLine(nbCouleurs == 2 ? "Le graphe est biparti." : "Le graphe n'est pas biparti.");
             /// Vérifie si biparti : 2 couleurs suffisent
             if (nbCouleurs == 2)
@@ -784,7 +784,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
 
 
-            // Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
+            /// Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
             /// Vérifie si planaire
             int nbSommets = n;
             int nbArêtes = 0;
@@ -797,7 +797,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             bool planaire = nbArêtes <= (3 * nbSommets - 6);
             Console.WriteLine(planaire ? "Le graphe est planaire." : "Le graphe n'est pas planaire.");
 
-            // Affiche les groupes indépendants
+            /// Affiche les groupes indépendants
             /// Affiche les groupes indépendants
             Console.WriteLine("\nGroupes indépendants (même couleur, aucun lien entre eux) :");
             for (int c = 1; c <= nbCouleurs; c++)
@@ -1580,6 +1580,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     }
                 }
             }
+            /// <summary>
+            /// affichage de la liste des plats végétariens
+            /// utilisation SQL avec WHERE LIKE pour filtrer les plats
+            /// </summary>
             static void Vegetarien(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1622,6 +1626,12 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
+
+            /// <summary>
+            /// methode qui permet d'afficher les 10 clients les plus fidèles
+            ///requete SQL avec utilisation de COUNT pour le nombre total de commande par ID client
+            ///on tri dans l'ordre decroissant afin de faire apparaitre le plus fidèle en premier
+            /// </summary>
             static void MerciAuClientFidele(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1643,6 +1653,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur : " + ex.Message);
                 }
             }
+            
+            /// <summary>
+            /// utilisation de GROUP BY et COUNT pour agrérer les donnés pas plat et le nombre de commandes
+            /// on utilise ORDER BY ... DESC afin d'obtenir les 10 plats les plus populaires
+            /// </summary>
             static void BestPlats(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -1974,6 +1989,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("ID de commande invalide.");
                 }
             }
+            
+            /// <summary>
+            /// verifie la commande en fonction de l'ID avec unitlisation de la bibliothèque
+            /// jointure SQl entre table commande, utilisateur, LigneCommande et Plat pour récupérer les informations
+            /// </summary>
             static void ViewCommande(MySqlConnection Connection)
             {
                 Console.Clear();
@@ -2026,6 +2046,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("ID invalide.");
                 }
             }
+            
             static void ExportMenu(MySqlConnection Connection)
             {
                 bool back = false;
@@ -2110,6 +2131,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                     Console.WriteLine("Erreur lors de l’export : " + ex.Message);
                 }
             }
+            /// <summary>
+            /// Exporte l'intégralité de la base de données connectée au format XML dans un fichier.
+            /// Chaque table est représentée comme une liste de dictionnaires (ligne = dictionnaire de colonnes).
+            /// </summary>
             static void XMLExport(MySqlConnection Connection, string FileName)
             {
                 try
