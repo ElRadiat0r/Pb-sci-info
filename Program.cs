@@ -21,7 +21,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
     {
         public static int[,] creationMatriceMtx(string chemin)
         {
+            /// <summary>
             ///création d'une matrice d'adjacence à partir d'un fichier de type .mtx
+            /// </summary>
+            
             int[,]? matriceUsers = null;
             StreamReader lecteur = new(chemin);
             string? ligne = lecteur.ReadLine();
@@ -47,6 +50,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int[,] RemplissageMatrice(int[,] matrice, string? ligne, StreamReader fichier)
         {
+            /// <summary>
+            ///permet de remplir la matrice à partir du fichier mtx
+            /// <\summary>
             bool symetric = false;
             string[] header = ligne.Split(" ");
             if (header[4] == "symmetric")
@@ -79,6 +85,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int[,] creationMatriceCSV(Graphe graphe)
         {
+            /// <summary>
+            ///créer une matrice d'adjacence à partir d'un objet Graphe
+            /// <\summary>
+            
             /// Récupérer les noeuds valides (ID != 0)
             var noeudsValid = graphe.AllNodes
             .Where(n => n.ID != 0)
@@ -117,6 +127,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int[,] creationMatriceJson(string cheminFichier)
         {
+            /// <summary>
+            /// créer la matrice d'adjacence d'un graphe à partir d'un fichier Json
+            /// <\summary>
             string json = File.ReadAllText(cheminFichier);
             JObject root = JObject.Parse(json);
             var utilisateurs = root["utilisateur"];
@@ -171,6 +184,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static Dictionary<int, List<int>> creationListeAdjacence(string chemin)
         {
+            /// <summary>
+            /// créer la liste d'adjacence d'un graphe depuis un fichier mtx
+            /// <\summary>
             var adjacencyList = new Dictionary<int, List<int>>();
             int noeuds = 0;
 
@@ -218,7 +234,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void affichageMatrice(int[,] matrice)
         {
-            //affichage de la matrice
+            /// <summary>
+            ///affichage de la matrice
+            /// <\summary>
             for (int i = 0; i < matrice.GetLength(0); i++)
             {
                 for (int ii = 0; ii < matrice.GetLength(1); ii++)
@@ -230,6 +248,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void affichageListe(Dictionary<int, List<int>> listeAdjacence)
         {
+            /// <summary>
+            /// affichage d'une liste
+            /// <\summary>
             foreach (var node in listeAdjacence)
             {
                 Console.Write($"{node.Key}: ");
@@ -239,6 +260,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int parcoursProfondeur(int[,] matrice, int depart, bool affichage)
         {
+            /// <summary>
+            /// parcours en profondeur d'un graphe depuis une matrice d'adjacence
+            /// <\summary>
             int n = matrice.GetLength(0);
             bool[] visite = new bool[n];
             Pile pile = new Pile(); // j'ai créer une classe pile avant de me rendre compte que Stack<T> existe
@@ -270,6 +294,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static int parcoursLargeur(int[,] matrice, int depart)
         {
+            /// <summary>
+            /// parcours en largeur à partir d'une matrice d'adjacence
+            /// <\summary>
             int n = matrice.GetLength(0);
             int c = 0;
             bool[] visite = new bool[n]; // tableau des noeuds déjà visités
