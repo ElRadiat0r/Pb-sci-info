@@ -1991,7 +1991,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
             
             /// <summary>
-            /// verifie la commande en fonction de l'ID avec unitlisation de la bibliothèque
+            /// verifie la commande en fonction de l'ID avec l'utilisation de la bibliothèque
             /// jointure SQl entre table commande, utilisateur, LigneCommande et Plat pour récupérer les informations
             /// </summary>
             static void ViewCommande(MySqlConnection Connection)
