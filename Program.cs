@@ -476,11 +476,13 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static List<int> Dijkstra(int depart, int arrivee, Graphe graphe)
         {
+            /// <summary>
+            /// algorithme du plus court chemin Dikstra
+            /// <\summary>
             var distances = new Dictionary<int, int>();
             var precedent = new Dictionary<int, int>();
             var nonVisites = new HashSet<int>();
 
-            // Initialisation
             foreach (var noeud in graphe.AllNodes.Where(n => n.ID != 0))
             {
                 distances[noeud.ID] = int.MaxValue;
@@ -491,12 +493,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
 
             while (nonVisites.Count > 0)
             {
-                // Sélectionne le noeud non visité avec la distance minimale
                 int courant = nonVisites.OrderBy(n => distances[n]).First();
 
                 nonVisites.Remove(courant);
 
-                // Pour tous les voisins connectés à courant via un lien
                 foreach (var lien in graphe.AllLinks)
                 {
                     if (lien.stationId == 0) continue;
@@ -529,7 +529,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
                 }
             }
 
-            // Reconstruction du chemin
             var chemin = new List<int>();
             int node = arrivee;
 
@@ -540,7 +539,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
 
             if (chemin.First() != depart)
-                return new List<int>(); // Aucun chemin trouvé
+                return new List<int>();
 
             return chemin;
         }
@@ -595,6 +594,9 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static List<int> FloydWarshall(int[,] graph, int source, int target)
         {
+            /// <summary>
+            /// algorithme de plus court chemin Floydmarshall
+            /// <\summary>
             int V = graph.GetLength(0);
             int[,] dist = new int[V, V];
             int[,] next = new int[V, V];
@@ -649,7 +651,11 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void livraison(Graphe graphe)
         {
-
+            /// <summary>
+            /// fonction qui permet la gestion d'une livraison
+            /// prend en paramètre un objet graphe
+            /// fait les appel du plus court chemin ainsi que la création d'image du graphe
+            /// <\summary>
             List<Noeud> listeStations = new List<Noeud>();
             int arrivee = 0;
             int depart = 0;
@@ -738,6 +744,10 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
         }
         public static void ColorationWelshPowell(int[,] matriceUtilisateurs)
         {
+            /// <summary>
+            /// coloration du graphe client cuisinier
+            /// prend une matrice d'adjacence en paramètres
+            /// <\summary>
             int n = matriceUtilisateurs.GetLength(0);
             int[] degres = new int[n];
 
@@ -802,9 +812,7 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             Console.WriteLine($"Nombre de couleurs minimales nécessaires : {nbCouleurs}");
             Console.WriteLine("Nombre de couleurs minimales nécessaires : " + nbCouleurs);
 
-            //: Vérifie si biparti : 2 couleurs suffisent
             Console.WriteLine(nbCouleurs == 2 ? "Le graphe est biparti." : "Le graphe n'est pas biparti.");
-            /// Vérifie si biparti : 2 couleurs suffisent
             if (nbCouleurs == 2)
             {
                 Console.WriteLine("Le graphe est biparti");
@@ -815,8 +823,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             }
 
 
-            /// Vérifie si planaire (formule d’Euler pour un graphe simple, connexe, non orienté)
-            /// Vérifie si planaire
             int nbSommets = n;
             int nbArêtes = 0;
 
@@ -828,8 +834,6 @@ namespace ADUFORET_TDUCOURAU_JESPINOS_LivInParis
             bool planaire = nbArêtes <= (3 * nbSommets - 6);
             Console.WriteLine(planaire ? "Le graphe est planaire." : "Le graphe n'est pas planaire.");
 
-            /// Affiche les groupes indépendants
-            /// Affiche les groupes indépendants
             Console.WriteLine("\nGroupes indépendants (même couleur, aucun lien entre eux) :");
             for (int c = 1; c <= nbCouleurs; c++)
             {
